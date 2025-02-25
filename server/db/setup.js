@@ -1,9 +1,11 @@
-const { Pool } = require("pg");
+require('dotenv').config();
+const fs = require('fs');
+const db = require('./connect');
+const sql = fs.readFileSync('cloudkitchen.sql').toString();
 
-// Connect to the database - requires a DB_URL value to have been loaded into the environment
-const db = new Pool({
-    connectionString: process.env.DB_URL
-})
-
-// Export the connection pool so other files can access it
-module.exports = db;
+db.query(sql)
+    .then(data => {
+        db.end();
+        console.log("Set-up complete.")
+    })
+    .catch(error => console.log(error));
