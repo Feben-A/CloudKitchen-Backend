@@ -1,60 +1,78 @@
-DROP TABLE IF EXISTS Users, recipes, orders, order_menu_items, order_ingredients, menu_items, inventory CASCADE;
+-- DROP TABLES IF THEY ALREADY EXIST (Ensures a clean setup)
+DROP TABLE IF EXISTS Order_Ingredients;
+DROP TABLE IF EXISTS Order_Menu_Items;
+DROP TABLE IF EXISTS Orders;
+DROP TABLE IF EXISTS Recipes;
+DROP TABLE IF EXISTS Inventory;
+DROP TABLE IF EXISTS Menu_Items;
+DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS Restaurants;
 
+-- RESTAURANTS TABLE (Tracks Multiple Restaurant Locations)
+CREATE TABLE Restaurants (
+    restaurant_id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    location VARCHAR(255) NOT NULL
+);
 
-
--- USERS TABLE (Staff Members)
+-- USERS TABLE (Tracks Restaurant Staff)
 CREATE TABLE Users (
     user_id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password TEXT NOT NULL,
-    role VARCHAR(50) NOT NULL -- e.g., chef, waiter, manager
+    role VARCHAR(50) CHECK (role IN ('chef', 'waiter', 'manager')) NOT NULL,
+    restaurant_id INT REFERENCES Restaurants(restaurant_id) ON DELETE CASCADE,
+    access_code VARCHAR(50) NOT NULL CHECK (access_code IN ('CHEF123', 'WAITER123', 'MANAGER123'))
 );
 
--- MENU ITEMS TABLE (Dishes Available)
+-- MENU ITEMS TABLE (Stores Dishes Available at a Restaurant)
 CREATE TABLE Menu_Items (
     menu_item_id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    category VARCHAR(50) NOT NULL
+    category VARCHAR(50) NOT NULL,
+    restaurant_id INT REFERENCES Restaurants(restaurant_id) ON DELETE CASCADE
 );
 
--- INVENTORY TABLE (Ingredients Stock)
+-- INVENTORY TABLE (Tracks Ingredients Available in the Kitchen)
 CREATE TABLE Inventory (
     ingredient_id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    category VARCHAR(50) NOT NULL, -- e.g., Vegetables, Dairy
-    quantity DECIMAL(10,2) NOT NULL, -- Allows fractional quantities (e.g., 0.5 kg)
-    unit VARCHAR(20) NOT NULL, -- e.g., kg, litres, pieces
+    category VARCHAR(50) NOT NULL,
+    quantity DECIMAL(10,2) CHECK (quantity >= 0) NOT NULL,
+    unit VARCHAR(20) NOT NULL,
     price_per_unit DECIMAL(10,2) NOT NULL,
-    expiry_date DATE
+    expiry_date DATE,
+    restaurant_id INT REFERENCES Restaurants(restaurant_id) ON DELETE CASCADE
 );
 
--- RECIPES TABLE (Links Menu Items to Ingredients)
+-- RECIPES TABLE (Defines Ingredients Needed for Each Dish)
 CREATE TABLE Recipes (
     recipe_id SERIAL PRIMARY KEY,
     menu_item_id INT REFERENCES Menu_Items(menu_item_id) ON DELETE CASCADE,
     ingredient_id INT REFERENCES Inventory(ingredient_id) ON DELETE CASCADE,
-    quantity_required DECIMAL(10,2) NOT NULL, -- Amount needed per dish
-    unit VARCHAR(20) NOT NULL -- Measurement unit for ingredient
+    quantity_required DECIMAL(10,2) NOT NULL,
+    unit VARCHAR(20) NOT NULL
 );
 
--- ORDERS TABLE (Customer Orders)
+-- ORDERS TABLE (Tracks Customer Orders)
 CREATE TABLE Orders (
     order_id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES Users(user_id) ON DELETE SET NULL, -- Staff member handling the order
+    user_id INT REFERENCES Users(user_id) ON DELETE SET NULL,
     order_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status VARCHAR(20) CHECK (status IN ('preparing', 'complete')) NOT NULL
+    status VARCHAR(20) CHECK (status IN ('preparing', 'complete')) NOT NULL,
+    restaurant_id INT REFERENCES Restaurants(restaurant_id) ON DELETE CASCADE
 );
 
--- ORDER MENU ITEMS TABLE (Links Orders to Menu Items)
+-- ORDER MENU ITEMS TABLE (Tracks Which Menu Items Are in Each Order)
 CREATE TABLE Order_Menu_Items (
     order_menu_id SERIAL PRIMARY KEY,
     order_id INT REFERENCES Orders(order_id) ON DELETE CASCADE,
     menu_item_id INT REFERENCES Menu_Items(menu_item_id) ON DELETE CASCADE,
-    quantity INT NOT NULL -- Number of each menu item in the order
+    quantity INT CHECK (quantity > 0) NOT NULL
 );
 
--- ORDER INGREDIENTS TABLE (Tracks Ingredient Usage for Orders)
+-- ORDER INGREDIENTS TABLE (Tracks Ingredient Usage for Each Order)
 CREATE TABLE Order_Ingredients (
     order_ingredient_id SERIAL PRIMARY KEY,
     order_id INT REFERENCES Orders(order_id) ON DELETE CASCADE,
@@ -62,47 +80,86 @@ CREATE TABLE Order_Ingredients (
     quantity_used DECIMAL(10,2) NOT NULL
 );
 
--- INSERT STAFF MEMBERS (Users)
-INSERT INTO Users (name, email, password, role) VALUES
-('Alice Smith', 'alice@example.com', 'hashedpassword1', 'chef'),
-('Bob Johnson', 'bob@example.com', 'hashedpassword2', 'waiter'),
-('Charlie Davis', 'charles@example.com', 'hashedpassword3', 'manager');
+-- INSERT SAMPLE DATA
 
--- INSERT MENU ITEMS (Dishes)
-INSERT INTO Menu_Items (name, category) VALUES
-('Margherita Pizza', 'Main Course'),
-('Cheeseburger', 'Main Course'),
-('Caesar Salad', 'Starter');
+-- Insert Restaurants
+INSERT INTO Restaurants (name, location) VALUES
+('Pizza Haven', 'New York'),
+('Burger Spot', 'London'),
+('Taco Fiesta', 'Los Angeles'),
+('Sushi World', 'Tokyo');
 
--- INSERT INVENTORY (Ingredients)
-INSERT INTO Inventory (name, category, quantity, unit, price_per_unit, expiry_date) VALUES
-('Cheese', 'Dairy', 10.00, 'kg', 5.00, '2025-03-01'),
-('Tomato Sauce', 'Sauce', 20.00, 'litres', 3.00, '2025-02-28'),
-('Lettuce', 'Vegetable', 50.00, 'pieces', 0.50, '2025-02-26'),
-('Beef Patty', 'Meat', 30.00, 'pieces', 2.50, '2025-02-27'),
-('Burger Bun', 'Bakery', 40.00, 'pieces', 1.00, '2025-03-05');
+-- Insert Users (Staff Members with Three Distinct Access Codes)
+INSERT INTO Users (name, email, password, role, restaurant_id, access_code) VALUES
+('Alice Smith', 'alice@example.com', 'hashedpassword1', 'chef', 1, 'CHEF123'),
+('Bob Johnson', 'bob@example.com', 'hashedpassword2', 'waiter', 1, 'WAITER123'),
+('Charlie Davis', 'charlie@example.com', 'hashedpassword3', 'manager', 1, 'MANAGER123'),
+('Emma Brown', 'emma@example.com', 'hashedpassword4', 'chef', 2, 'CHEF123'),
+('David White', 'david@example.com', 'hashedpassword5', 'waiter', 2, 'WAITER123'),
+('Sophia Green', 'sophia@example.com', 'hashedpassword6', 'manager', 3, 'MANAGER123'),
+('Liam Carter', 'liam@example.com', 'hashedpassword7', 'chef', 4, 'CHEF123');
 
--- INSERT RECIPES (Linking Menu Items to Ingredients)
+-- Insert Menu Items (Dishes)
+INSERT INTO Menu_Items (name, category, restaurant_id) VALUES
+('Margherita Pizza', 'Main Course', 1),
+('Cheeseburger', 'Main Course', 2),
+('Caesar Salad', 'Starter', 1),
+('BBQ Burger', 'Main Course', 2),
+('Tacos', 'Main Course', 3),
+('Sushi Roll', 'Main Course', 4),
+('Tempura', 'Starter', 4);
+
+-- Insert Inventory (Ingredients)
+INSERT INTO Inventory (name, category, quantity, unit, price_per_unit, expiry_date, restaurant_id) VALUES
+('Cheese', 'Dairy', 15.00, 'kg', 5.00, '2025-04-01', 1),
+('Tomato Sauce', 'Sauce', 30.00, 'litres', 3.00, '2025-03-15', 1),
+('Lettuce', 'Vegetable', 25.00, 'pieces', 0.50, '2025-03-10', 2),
+('Beef Patty', 'Meat', 50.00, 'pieces', 2.50, '2025-04-01', 2),
+('Burger Bun', 'Bakery', 60.00, 'pieces', 1.00, '2025-03-20', 2),
+('Tortilla', 'Bakery', 40.00, 'pieces', 1.20, '2025-04-05', 3),
+('Avocado', 'Vegetable', 20.00, 'pieces', 1.80, '2025-03-12', 3),
+('Rice', 'Grain', 100.00, 'kg', 2.50, '2025-06-01', 4),
+('Fish', 'Meat', 40.00, 'kg', 8.00, '2025-03-25', 4);
+
+-- Insert Recipes (Dishes & Ingredients)
 INSERT INTO Recipes (menu_item_id, ingredient_id, quantity_required, unit) VALUES
-(1, 1, 200.00, 'g'),  -- Margherita Pizza needs 200g of Cheese
-(1, 2, 150.00, 'ml'), -- Margherita Pizza needs 150ml of Tomato Sauce
-(2, 4, 1.00, 'piece'), -- Cheeseburger needs 1 Beef Patty
-(2, 5, 1.00, 'piece'), -- Cheeseburger needs 1 Burger Bun
-(3, 3, 1.00, 'piece'); -- Caesar Salad needs 1 Lettuce Leaf
+(1, 1, 200.00, 'g'),  -- Margherita Pizza needs Cheese
+(1, 2, 150.00, 'ml'), -- Margherita Pizza needs Tomato Sauce
+(2, 4, 1.00, 'piece'), -- Cheeseburger needs Beef Patty
+(2, 5, 1.00, 'piece'), -- Cheeseburger needs Burger Bun
+(3, 3, 1.00, 'piece'), -- Caesar Salad needs Lettuce
+(5, 6, 1.00, 'piece'), -- Tacos need Tortilla
+(5, 7, 0.5, 'piece'), -- Tacos need Avocado
+(6, 8, 200.00, 'g'), -- Sushi Roll needs Rice
+(6, 9, 100.00, 'g'); -- Sushi Roll needs Fish
 
--- INSERT ORDERS (Customer Orders)
-INSERT INTO Orders (user_id, order_time, status) VALUES
-(2, '2025-02-25 12:30:00', 'preparing'), -- Order taken by Bob (waiter)
-(2, '2025-02-25 12:45:00', 'complete'); -- Another order completed
+-- Insert Orders (Customer Orders)
+INSERT INTO Orders (user_id, order_time, status, restaurant_id) VALUES
+(2, '2025-02-26 14:00:00', 'preparing', 1),
+(5, '2025-02-26 14:15:00', 'complete', 2),
+(6, '2025-02-26 14:30:00', 'preparing', 3),
+(7, '2025-02-26 14:45:00', 'complete', 4),
+(2, '2025-02-27 12:30:00', 'complete', 1),
+(5, '2025-02-27 13:00:00', 'preparing', 2);
 
--- INSERT ORDER MENU ITEMS (Tracking Dishes in an Order)
+-- Insert Order Menu Items (Dishes in Each Order)
 INSERT INTO Order_Menu_Items (order_id, menu_item_id, quantity) VALUES
 (1, 1, 2),  -- Order 1: 2 Margherita Pizzas
-(1, 2, 1);  -- Order 1: 1 Cheeseburger
+(1, 3, 1),  -- Order 1: 1 Caesar Salad
+(2, 2, 1),  -- Order 2: 1 Cheeseburger
+(3, 5, 3),  -- Order 3: 3 Tacos
+(4, 6, 2),  -- Order 4: 2 Sushi Rolls
+(5, 1, 1),  -- Order 5: 1 Margherita Pizza
+(6, 2, 2);  -- Order 6: 2 Cheeseburgers
 
--- INSERT ORDER INGREDIENTS (Tracking Ingredient Usage in Orders)
+-- Insert Order Ingredients (Ingredients Used in Each Order)
 INSERT INTO Order_Ingredients (order_id, ingredient_id, quantity_used) VALUES
-(1, 1, 400.00),  -- 400g of Cheese used for 2 Pizzas
-(1, 2, 300.00),  -- 300ml of Tomato Sauce used for 2 Pizzas
-(1, 4, 1.00),    -- 1 Beef Patty used for 1 Cheeseburger
-(1, 5, 1.00);    -- 1 Burger Bun used for 1 Cheeseburger
+(1, 1, 400.00),  -- 400g of Cheese for 2 Pizzas
+(1, 2, 300.00),  -- 300ml of Tomato Sauce for 2 Pizzas
+(1, 3, 1.00),    -- 1 Lettuce Leaf for Caesar Salad
+(2, 4, 1.00),    -- 1 Beef Patty for Cheeseburger
+(2, 5, 1.00),    -- 1 Burger Bun for Cheeseburger
+(3, 6, 3.00),    -- 3 Tortillas for 3 Tacos
+(3, 7, 1.50),    -- 1.5 Avocados for 3 Tacos
+(4, 8, 400.00),  -- 400g of Rice for 2 Sushi Rolls
+(4, 9, 200.00);  -- 200g of Fish for 2 Sushi Rolls
