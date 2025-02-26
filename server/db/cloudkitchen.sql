@@ -66,7 +66,7 @@ CREATE TABLE Order_Ingredients (
 INSERT INTO Users (name, email, password, role) VALUES
 ('Alice Smith', 'alice@example.com', 'hashedpassword1', 'chef'),
 ('Bob Johnson', 'bob@example.com', 'hashedpassword2', 'waiter'),
-('Charlie Davis', 'charlie@example.com', 'hashedpassword3', 'manager');
+('Charlie Davis', 'charles@example.com', 'hashedpassword3', 'manager');
 
 -- INSERT MENU ITEMS (Dishes)
 INSERT INTO Menu_Items (name, category) VALUES

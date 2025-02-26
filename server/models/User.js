@@ -18,6 +18,16 @@ class User {
     return response.rows.map((user) => new User(user));
   }
 
+  static async getStaffByUsername(name) {
+    const response = await db.query("SELECT * FROM students WHERE name = $1;", [
+      name,
+    ]);
+    if (response.rows.length != 1) {
+      throw new Error("User does not exist!");
+    }
+    return new User(response.rows[0]);
+  }
+
   static async create(data) {
     const { name, email, password, role } = data;
     try {

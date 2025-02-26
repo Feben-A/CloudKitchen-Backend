@@ -34,8 +34,10 @@ async function login(req, res) {
     const match = await bcrypt.compare(data.password, user.password);
 
     if (match) {
+      //attach the username and role to the payload
       const payload = {
         name: user.name,
+        role: user.role,
       };
       console.log("signing jwt");
       const token = jwt.sign(payload, process.env.SECRET_TOKEN, {
