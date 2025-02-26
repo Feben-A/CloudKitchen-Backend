@@ -1,3 +1,7 @@
+DROP TABLE IF EXISTS Users, recipes, orders, order_menu_items, order_ingredients, menu_items, inventory CASCADE;
+
+
+
 -- USERS TABLE (Staff Members)
 CREATE TABLE Users (
     user_id SERIAL PRIMARY KEY,
