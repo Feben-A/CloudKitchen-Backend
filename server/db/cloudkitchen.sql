@@ -12,7 +12,8 @@ DROP TABLE IF EXISTS Restaurants;
 CREATE TABLE Restaurants (
     restaurant_id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    location VARCHAR(255) NOT NULL
+    location VARCHAR(255) NOT NULL,
+    restaurant_code VARCHAR(20) UNIQUE NOT NULL
 );
 
 -- USERS TABLE (Tracks Restaurant Staff)
@@ -83,11 +84,11 @@ CREATE TABLE Order_Ingredients (
 -- INSERT SAMPLE DATA
 
 -- Insert Restaurants
-INSERT INTO Restaurants (name, location) VALUES
-('Pizza Haven', 'New York'),
-('Burger Spot', 'London'),
-('Taco Fiesta', 'Los Angeles'),
-('Sushi World', 'Tokyo');
+INSERT INTO Restaurants (name, location, restaurant_code) VALUES
+('Pizza Haven', 'New York', 'PIZNYC'),
+('Burger Spot', 'London', 'BURLDN'),
+('Taco Fiesta', 'Los Angeles', 'TACLA'),
+('Sushi World', 'Tokyo', 'SUSTOK');
 
 -- Insert Users (Staff Members with Three Distinct Access Codes)
 INSERT INTO Users (name, email, password, role, restaurant_id, access_code) VALUES
@@ -119,7 +120,12 @@ INSERT INTO Inventory (name, category, quantity, unit, price_per_unit, expiry_da
 ('Tortilla', 'Bakery', 40.00, 'pieces', 1.20, '2025-04-05', 3),
 ('Avocado', 'Vegetable', 20.00, 'pieces', 1.80, '2025-03-12', 3),
 ('Rice', 'Grain', 100.00, 'kg', 2.50, '2025-06-01', 4),
-('Fish', 'Meat', 40.00, 'kg', 8.00, '2025-03-25', 4);
+('Fish', 'Meat', 40.00, 'kg', 8.00, '2025-03-25', 4),
+('Milk', 'Dairy', 5.00, 'litres', 1.50, CURRENT_DATE + INTERVAL '3 days', 1),  -- Expiring in 3 days
+('Tomatoes', 'Vegetable', 10.00, 'kg', 2.00, CURRENT_DATE + INTERVAL '5 days', 1), -- Expiring in 5 days
+('Lettuce', 'Vegetable', 15.00, 'pieces', 0.80, CURRENT_DATE + INTERVAL '6 days', 2), -- Expiring in 6 days
+('Cheese', 'Dairy', 8.00, 'kg', 5.50, CURRENT_DATE + INTERVAL '10 days', 1),  -- Expiring in 10 days (should NOT be returned)
+('Olive Oil', 'Oil', 3.00, 'litres', 4.00, CURRENT_DATE + INTERVAL '15 days', 3);  -- Expiring in 15 days (should NOT be returned)
 
 -- Insert Recipes (Dishes & Ingredients)
 INSERT INTO Recipes (menu_item_id, ingredient_id, quantity_required, unit) VALUES
