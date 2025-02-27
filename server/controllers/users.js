@@ -29,7 +29,7 @@ async function register(req, res) {
 async function login(req, res) {
   const data = req.body;
   try {
-    const user = await User.getUserByUsername(data.name);
+    const user = await User.getStaffByEmail(data.email);
     if (!user) {
       throw new Error("No user found.");
     }
@@ -37,7 +37,8 @@ async function login(req, res) {
 
     if (match) {
       const payload = {
-        user_id: user.user_id,
+        name: user.name,
+        role: user.role,
         restaurant_id: user.restaurant_id,
       };
       console.log("signing jwt");

@@ -27,14 +27,16 @@ class User {
     return response.rows[0].restaurant_id;
   }
 
-  static async getStaffByUsername(name) {
-    const response = await db.query("SELECT * FROM students WHERE name = $1;", [
-      name,
+  static async getStaffByEmail(email) {
+    const response = await db.query("SELECT * FROM Users WHERE email = $1;", [
+      email,
     ]);
+
     if (response.rows.length != 1) {
-      throw new Error("User does not exist!");
+      throw new Error("Unable to find user");
     }
-    return new User(response.rows[0]);
+
+    return response.rows[0];
   }
 
   static async create(data, restaurant_id) {
