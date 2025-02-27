@@ -2,12 +2,13 @@ const db = require("../db/connect");
 
 class User {
   static async getAll() {
+    console.log("Hello");
     const response = await db.query("SELECT * FROM Users");
     if (response.rows.length === 0) {
       throw new Error("No users found");
     }
 
-    return response.rows.map((user) => new User(user));
+    return response.rows;
   }
 
   static async getRestaurantId(code) {
@@ -51,5 +52,8 @@ class User {
     }
     return response.rows[0];
   }
+
+
+  
 }
 module.exports = User;

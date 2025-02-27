@@ -8,8 +8,9 @@ const authentication = (req, res, next) => {
       if (err) {
         res.status(403).json({ err: "No valid token" });
       } else {
-        req.user_id = data.user_id;
-        // req.restaurant_id = data.restaurant_id;
+        req.name = data.name;
+        req.role = data.role;
+        req.restaurant_id = data.restaurant_id;
         next();
       }
     });

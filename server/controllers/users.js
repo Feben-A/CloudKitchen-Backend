@@ -4,8 +4,8 @@ const User = require("../models/User");
 
 async function index(req, res) {
   try {
-    const response = User.getAll();
-    res.status(200).json({ response });
+    const response = await User.getAll();
+    res.status(200).json(response);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
