@@ -52,8 +52,5 @@ class User {
     }
     return response.rows[0];
   }
-
-
-  
 }
 module.exports = User;

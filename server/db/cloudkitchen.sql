@@ -27,14 +27,6 @@ CREATE TABLE Users (
     access_code VARCHAR(50) NOT NULL CHECK (access_code IN ('CHEF123', 'WAITER123', 'MANAGER123'))
 );
 
--- MENU ITEMS TABLE (Stores Dishes Available at a Restaurant)
-CREATE TABLE Menu_Items (
-    menu_item_id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    category VARCHAR(50) NOT NULL,
-    restaurant_id INT REFERENCES Restaurants(restaurant_id) ON DELETE CASCADE
-);
-
 -- INVENTORY TABLE (Tracks Ingredients Available in the Kitchen)
 CREATE TABLE Inventory (
     ingredient_id SERIAL PRIMARY KEY,
@@ -73,13 +65,21 @@ CREATE TABLE Order_Menu_Items (
     quantity INT CHECK (quantity > 0) NOT NULL
 );
 
--- ORDER INGREDIENTS TABLE (Tracks Ingredient Usage for Each Order)
-CREATE TABLE Order_Ingredients (
-    order_ingredient_id SERIAL PRIMARY KEY,
-    order_id INT REFERENCES Orders(order_id) ON DELETE CASCADE,
-    ingredient_id INT REFERENCES Inventory(ingredient_id) ON DELETE CASCADE,
-    quantity_used DECIMAL(10,2) NOT NULL
+-- MENU ITEMS TABLE (Stores Dishes Available at a Restaurant)
+CREATE TABLE Menu_Items (
+    menu_item_id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    restaurant_id INT REFERENCES Restaurants(restaurant_id) ON DELETE CASCADE
 );
+
+-- -- ORDER INGREDIENTS TABLE (Tracks Ingredient Usage for Each Order)
+-- CREATE TABLE Order_Ingredients (
+--     order_ingredient_id SERIAL PRIMARY KEY,
+--     order_id INT REFERENCES Orders(order_id) ON DELETE CASCADE,
+--     ingredient_id INT REFERENCES Inventory(ingredient_id) ON DELETE CASCADE,
+--     quantity_used DECIMAL(10,2) NOT NULL
+-- );
 
 -- INSERT SAMPLE DATA
 
@@ -158,14 +158,14 @@ INSERT INTO Order_Menu_Items (order_id, menu_item_id, quantity) VALUES
 (5, 1, 1),  -- Order 5: 1 Margherita Pizza
 (6, 2, 2);  -- Order 6: 2 Cheeseburgers
 
--- Insert Order Ingredients (Ingredients Used in Each Order)
-INSERT INTO Order_Ingredients (order_id, ingredient_id, quantity_used) VALUES
-(1, 1, 400.00),  -- 400g of Cheese for 2 Pizzas
-(1, 2, 300.00),  -- 300ml of Tomato Sauce for 2 Pizzas
-(1, 3, 1.00),    -- 1 Lettuce Leaf for Caesar Salad
-(2, 4, 1.00),    -- 1 Beef Patty for Cheeseburger
-(2, 5, 1.00),    -- 1 Burger Bun for Cheeseburger
-(3, 6, 3.00),    -- 3 Tortillas for 3 Tacos
-(3, 7, 1.50),    -- 1.5 Avocados for 3 Tacos
-(4, 8, 400.00),  -- 400g of Rice for 2 Sushi Rolls
-(4, 9, 200.00);  -- 200g of Fish for 2 Sushi Rolls
+-- -- Insert Order Ingredients (Ingredients Used in Each Order)
+-- INSERT INTO Order_Ingredients (order_id, ingredient_id, quantity_used) VALUES
+-- (1, 1, 400.00),  -- 400g of Cheese for 2 Pizzas
+-- (1, 2, 300.00),  -- 300ml of Tomato Sauce for 2 Pizzas
+-- (1, 3, 1.00),    -- 1 Lettuce Leaf for Caesar Salad
+-- (2, 4, 1.00),    -- 1 Beef Patty for Cheeseburger
+-- (2, 5, 1.00),    -- 1 Burger Bun for Cheeseburger
+-- (3, 6, 3.00),    -- 3 Tortillas for 3 Tacos
+-- (3, 7, 1.50),    -- 1.5 Avocados for 3 Tacos
+-- (4, 8, 400.00),  -- 400g of Rice for 2 Sushi Rolls
+-- (4, 9, 200.00);  -- 200g of Fish for 2 Sushi Rolls
