@@ -1,23 +1,6 @@
 const db = require("../db/connect");
 
 class User {
-  constructor({
-    user_id,
-    name,
-    email,
-    password,
-    role,
-    restaurant_id,
-    access_code,
-  }) {
-    (this.user_id = user_id),
-      (this.name = name),
-      (this.email = email),
-      (this.password = password);
-    this.role = role;
-    (this.restaruant_id = restaurant_id), (this.access_code = access_code);
-  }
-
   static async getAll() {
     const response = await db.query("SELECT * FROM Users");
     if (response.rows.length === 0) {
@@ -25,6 +8,23 @@ class User {
     }
 
     return response.rows.map((user) => new User(user));
+  }
+
+  static async getRestaurantId(code) {
+    console.log(code);
+    console.log(db);
+    const response = await db.query(
+      "SELECT restaurant_id FROM Restaurants WHERE LOWER(restaurant_code) = LOWER($1) LIMIT 1;",
+      [code]
+    );
+
+    console.log(response.rows[0]);
+
+    if (response.rows.length != 1) {
+      throw new Error("Unable to find restaurant code");
+    }
+
+    return response.rows[0].restaurant_id;
   }
 
   static async getStaffByUsername(name) {
@@ -37,18 +37,17 @@ class User {
     return new User(response.rows[0]);
   }
 
-  static async create(data) {
+  static async create(data, restaurant_id) {
     const { name, email, password, role, access_code } = data;
 
     const response = await db.query(
-      "INSERT INTO Users (name, email, password, role, restaurant_id, access_code) VALUES ($1, $2, $3, $4, $5, $6) RETURNING name",
-      [name, email, password, role, 1, access_code]
+      "INSERT INTO Users (name, email, password, role, restaurant_id, access_code) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+      [name, email, password, role, restaurant_id, access_code]
     );
     if (response.rows.length === 0) {
       throw new Error("Unable to register staff");
     }
-
-    return new User(response.rows[0]);
+    return response.rows[0];
   }
 }
 module.exports = User;

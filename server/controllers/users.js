@@ -13,11 +13,13 @@ async function index(req, res) {
 
 async function register(req, res) {
   try {
+    console.log(req.body);
     const data = req.body;
-    console.log("arrived");
+    const restaurant_id = await User.getRestaurantId(data.restaurant_code);
+
     const salt = await bcrypt.genSalt(parseInt(process.env.BCRYPT_SALT_ROUNDS));
     data["password"] = await bcrypt.hash(data.password, salt);
-    const result = await User.create(data);
+    const result = await User.create(data, restaurant_id);
     res.status(201).send(result);
   } catch (err) {
     res.status(400).json({ error: err.message });
