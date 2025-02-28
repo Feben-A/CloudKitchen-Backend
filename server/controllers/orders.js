@@ -1,8 +1,15 @@
 const db = require("../db/connect");
 const Order = require("../models/Order");
 
-const index = async (req, res) => {};
-//requires order id status and a list of the menu items assoicated.
+const index = async (req, res) => {
+  try {
+    const response = await Order.getAll();
+    console.log(response);
+    res.status(200).json(response);
+  } catch (err) {
+    res.status(404).json({ error: err.message });
+  }
+};
 
 const create = async (req, res) => {
   try {

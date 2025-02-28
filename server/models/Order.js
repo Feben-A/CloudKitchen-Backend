@@ -8,6 +8,16 @@ class Order {
     (this.status = status), (this.restuarant_id = restuarant_id);
   }
 
+  static async getAll() {
+    const response = await db.query(
+      "SELECT o.order_id, json_agg(json_build_object('menu_item_name', mi.name, 'quantity', omi.quantity)) AS menu_items FROM Orders o JOIN Order_Menu_Items omi ON o.order_id = omi.order_id JOIN Menu_Items mi ON omi.menu_item_id = mi.menu_item_id GROUP BY o.order_id ORDER BY o.order_id;"
+    );
+    if (response.rows.length === 0) {
+      throw new Error("No orders found");
+    }
+    return response.rows;
+  }
+
   static async getOrderById(id) {
     const response = await db.query(
       "SELECT * FROM Orders WHERE order_id = $1;",

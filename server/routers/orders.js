@@ -4,6 +4,7 @@ const authentication = require("../middlewares/authentication");
 
 const orderRouter = Router();
 
+orderRouter.get("/", orderController.index);
 orderRouter.post("/", orderController.create);
 orderRouter.delete("/:id", orderController.remove);
 orderRouter.patch("/:id", orderController.update);
