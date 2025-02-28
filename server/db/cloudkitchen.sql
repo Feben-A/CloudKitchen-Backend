@@ -70,18 +70,11 @@ CREATE TABLE Recipes (
     recipe_id SERIAL PRIMARY KEY,
     menu_item_id INT REFERENCES Menu_Items(menu_item_id) ON DELETE CASCADE,
     ingredient_id INT REFERENCES Inventory(ingredient_id) ON DELETE CASCADE,
+    ingredient_name, VARCHAR(20),
     quantity_required DECIMAL(10,2) NOT NULL,
     unit VARCHAR(20) NOT NULL
 );
 
-
--- -- ORDER INGREDIENTS TABLE (Tracks Ingredient Usage for Each Order)
--- CREATE TABLE Order_Ingredients (
---     order_ingredient_id SERIAL PRIMARY KEY,
---     order_id INT REFERENCES Orders(order_id) ON DELETE CASCADE,
---     ingredient_id INT REFERENCES Inventory(ingredient_id) ON DELETE CASCADE,
---     quantity_used DECIMAL(10,2) NOT NULL
--- );
 
 -- INSERT SAMPLE DATA
 
@@ -129,17 +122,18 @@ INSERT INTO Inventory (name, category, quantity, unit, price_per_unit, expiry_da
 ('Cheese', 'Dairy', 8.00, 'kg', 5.50, CURRENT_DATE + INTERVAL '10 days', 1),  -- Expiring in 10 days (should NOT be returned)
 ('Olive Oil', 'Oil', 3.00, 'litres', 4.00, CURRENT_DATE + INTERVAL '15 days', 3);  -- Expiring in 15 days (should NOT be returned)
 
--- Insert Recipes (Dishes & Ingredients)
-INSERT INTO Recipes (menu_item_id, ingredient_id, quantity_required, unit) VALUES
-(1, 1, 200.00, 'g'),  -- Margherita Pizza needs Cheese
-(1, 2, 150.00, 'ml'), -- Margherita Pizza needs Tomato Sauce
-(2, 4, 1.00, 'piece'), -- Cheeseburger needs Beef Patty
-(2, 5, 1.00, 'piece'), -- Cheeseburger needs Burger Bun
-(3, 3, 1.00, 'piece'), -- Caesar Salad needs Lettuce
-(5, 6, 1.00, 'piece'), -- Tacos need Tortilla
-(5, 7, 0.5, 'piece'), -- Tacos need Avocado
-(6, 8, 200.00, 'g'), -- Sushi Roll needs Rice
-(6, 9, 100.00, 'g'); -- Sushi Roll needs Fish
+-- Insert Recipes (Dishes & Ingredients) JUST ADD INGREDIENT NAME HERE.
+INSERT INTO Recipes (menu_item_id, ingredient_id, ingredient_name, quantity_required, unit) VALUES
+(1, 1, 'Cheese', 200.00, 'g'),  -- Margherita Pizza needs Cheese
+(1, 2, 'Tomato Sauce', 150.00, 'ml'), -- Margherita Pizza needs Tomato Sauce
+(2, 4, 'Beef Patty', 1.00, 'piece'), -- Cheeseburger needs Beef Patty
+(2, 5, 'Burger Bun', 1.00, 'piece'), -- Cheeseburger needs Burger Bun
+(3, 3, 'Lettuce', 1.00, 'piece'), -- Caesar Salad needs Lettuce
+(5, 6, 'Tortilla', 1.00, 'piece'), -- Tacos need Tortilla
+(5, 7, 'Avocado', 0.5, 'piece'), -- Tacos need Avocado
+(6, 8, 'Rice', 200.00, 'g'), -- Sushi Roll needs Rice
+(6, 9, 'Fish', 100.00, 'g'); -- Sushi Roll needs Fish
+
 
 -- Insert Orders (Customer Orders)
 INSERT INTO Orders (user_id, order_time, status, restaurant_id) VALUES
@@ -159,15 +153,3 @@ INSERT INTO Order_Menu_Items (order_id, menu_item_id, quantity) VALUES
 (4, 6, 2),  -- Order 4: 2 Sushi Rolls
 (5, 1, 1),  -- Order 5: 1 Margherita Pizza
 (6, 2, 2);  -- Order 6: 2 Cheeseburgers
-
--- -- Insert Order Ingredients (Ingredients Used in Each Order)
--- INSERT INTO Order_Ingredients (order_id, ingredient_id, quantity_used) VALUES
--- (1, 1, 400.00),  -- 400g of Cheese for 2 Pizzas
--- (1, 2, 300.00),  -- 300ml of Tomato Sauce for 2 Pizzas
--- (1, 3, 1.00),    -- 1 Lettuce Leaf for Caesar Salad
--- (2, 4, 1.00),    -- 1 Beef Patty for Cheeseburger
--- (2, 5, 1.00),    -- 1 Burger Bun for Cheeseburger
--- (3, 6, 3.00),    -- 3 Tortillas for 3 Tacos
--- (3, 7, 1.50),    -- 1.5 Avocados for 3 Tacos
--- (4, 8, 400.00),  -- 400g of Rice for 2 Sushi Rolls
--- (4, 9, 200.00);  -- 200g of Fish for 2 Sushi Rolls
