@@ -14,7 +14,11 @@ const index = async (req, res) => {
 const create = async (req, res) => {
   try {
     const items = req.body.items;
-    const newOrder = await Order.newOrder(req.user_id, req.restaurant_id);
+    const newOrder = await Order.newOrder(
+      req.user_id,
+      req.restaurant_id,
+      req.body.table_number
+    );
     const response = await Order.newOrderMenuItems(items, newOrder.order_id);
   } catch (err) {
     res.status(400).json({ error: err.message });

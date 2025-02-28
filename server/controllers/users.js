@@ -28,6 +28,7 @@ async function register(req, res) {
 
 async function login(req, res) {
   const data = req.body;
+  console.log(data);
   try {
     const user = await User.getStaffByEmail(data.email);
     if (!user) {

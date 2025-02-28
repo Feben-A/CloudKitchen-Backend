@@ -31,9 +31,9 @@ class Order {
     return new Order(response.rows[0]);
   }
 
-  static async newOrder(user_id, restaurant_id) {
+  static async newOrder(user_id, restaurant_id, table_number) {
     const response = await db.query(
-      "INSERT INTO Orders (user_id, restaurant_id) VALUES ($1, $2) RETURNING *;"
+      "INSERT INTO Orders (user_id, restaurant_id, table_number) VALUES ($1, $2, $3) RETURNING *;"
     );
 
     if (response.rows.length != 1) {

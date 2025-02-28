@@ -51,6 +51,7 @@ CREATE TABLE Menu_Items (
 -- ORDERS TABLE (Tracks Customer Orders)
 CREATE TABLE Orders (
     order_id SERIAL PRIMARY KEY,
+    table_number INT NOT NULL,
     user_id INT REFERENCES Users(user_id) ON DELETE SET NULL,
     order_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status VARCHAR(20) CHECK (status IN ('preparing', 'complete')) DEFAULT 'preparing' NOT NULL,
@@ -70,7 +71,7 @@ CREATE TABLE Recipes (
     recipe_id SERIAL PRIMARY KEY,
     menu_item_id INT REFERENCES Menu_Items(menu_item_id) ON DELETE CASCADE,
     ingredient_id INT REFERENCES Inventory(ingredient_id) ON DELETE CASCADE,
-    ingredient_name, VARCHAR(20),
+    ingredient_name VARCHAR(20),
     quantity_required DECIMAL(10,2) NOT NULL,
     unit VARCHAR(20) NOT NULL
 );
