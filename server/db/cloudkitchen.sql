@@ -39,21 +39,21 @@ CREATE TABLE Inventory (
     restaurant_id INT REFERENCES Restaurants(restaurant_id) ON DELETE CASCADE
 );
 
--- RECIPES TABLE (Defines Ingredients Needed for Each Dish)
-CREATE TABLE Recipes (
-    recipe_id SERIAL PRIMARY KEY,
-    menu_item_id INT REFERENCES Menu_Items(menu_item_id) ON DELETE CASCADE,
-    ingredient_id INT REFERENCES Inventory(ingredient_id) ON DELETE CASCADE,
-    quantity_required DECIMAL(10,2) NOT NULL,
-    unit VARCHAR(20) NOT NULL
+-- MENU ITEMS TABLE (Stores Dishes Available at a Restaurant)
+CREATE TABLE Menu_Items (
+    menu_item_id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    restaurant_id INT REFERENCES Restaurants(restaurant_id) ON DELETE CASCADE
 );
+
 
 -- ORDERS TABLE (Tracks Customer Orders)
 CREATE TABLE Orders (
     order_id SERIAL PRIMARY KEY,
     user_id INT REFERENCES Users(user_id) ON DELETE SET NULL,
     order_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status VARCHAR(20) CHECK (status IN ('preparing', 'complete')) NOT NULL,
+    status VARCHAR(20) CHECK (status IN ('preparing', 'complete')) DEFAULT 'preparing' NOT NULL,
     restaurant_id INT REFERENCES Restaurants(restaurant_id) ON DELETE CASCADE
 );
 
@@ -65,13 +65,15 @@ CREATE TABLE Order_Menu_Items (
     quantity INT CHECK (quantity > 0) NOT NULL
 );
 
--- MENU ITEMS TABLE (Stores Dishes Available at a Restaurant)
-CREATE TABLE Menu_Items (
-    menu_item_id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    category VARCHAR(50) NOT NULL,
-    restaurant_id INT REFERENCES Restaurants(restaurant_id) ON DELETE CASCADE
+-- RECIPES TABLE (Defines Ingredients Needed for Each Dish)
+CREATE TABLE Recipes (
+    recipe_id SERIAL PRIMARY KEY,
+    menu_item_id INT REFERENCES Menu_Items(menu_item_id) ON DELETE CASCADE,
+    ingredient_id INT REFERENCES Inventory(ingredient_id) ON DELETE CASCADE,
+    quantity_required DECIMAL(10,2) NOT NULL,
+    unit VARCHAR(20) NOT NULL
 );
+
 
 -- -- ORDER INGREDIENTS TABLE (Tracks Ingredient Usage for Each Order)
 -- CREATE TABLE Order_Ingredients (

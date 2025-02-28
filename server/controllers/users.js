@@ -39,6 +39,7 @@ async function login(req, res) {
       const payload = {
         name: user.name,
         role: user.role,
+        user_id: user.user_id,
         restaurant_id: user.restaurant_id,
       };
       console.log("signing jwt");
