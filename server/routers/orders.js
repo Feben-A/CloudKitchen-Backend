@@ -4,10 +4,10 @@ const authentication = require("../middlewares/authentication");
 
 const orderRouter = Router();
 
-orderRouter.get("/", orderController.index);
-orderRouter.post("/", orderController.create);
-orderRouter.delete("/:id", orderController.remove);
-orderRouter.patch("/:id", orderController.update);
+orderRouter.get("/", authentication, orderController.index);
+orderRouter.post("/", authentication, orderController.create);
+orderRouter.delete("/:id", authentication, orderController.remove);
+orderRouter.patch("/:id", authentication, orderController.update);
 //n.b add in the authentication after testing it.
 
 module.exports = orderRouter;

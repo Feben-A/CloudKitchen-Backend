@@ -55,6 +55,7 @@ CREATE TABLE Orders (
     user_id INT REFERENCES Users(user_id) ON DELETE SET NULL,
     order_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status VARCHAR(20) CHECK (status IN ('preparing', 'complete')) DEFAULT 'preparing' NOT NULL,
+    order_notes VARCHAR(300) DEFAULT 'N/A',
     restaurant_id INT REFERENCES Restaurants(restaurant_id) ON DELETE CASCADE
 );
 
@@ -62,7 +63,7 @@ CREATE TABLE Orders (
 CREATE TABLE Order_Menu_Items (
     order_menu_id SERIAL PRIMARY KEY,
     order_id INT REFERENCES Orders(order_id) ON DELETE CASCADE,
-    menu_item_id INT REFERENCES Menu_Items(menu_item_id) ON DELETE CASCADE,
+    menu_item VARCHAR(30) NOT NULL,
     quantity INT CHECK (quantity > 0) NOT NULL
 );
 
@@ -137,20 +138,21 @@ INSERT INTO Recipes (menu_item_id, ingredient_id, ingredient_name, quantity_requ
 
 
 -- Insert Orders (Customer Orders)
-INSERT INTO Orders (user_id, order_time, status, restaurant_id) VALUES
-(2, '2025-02-26 14:00:00', 'preparing', 1),
-(5, '2025-02-26 14:15:00', 'complete', 2),
-(6, '2025-02-26 14:30:00', 'preparing', 3),
-(7, '2025-02-26 14:45:00', 'complete', 4),
-(2, '2025-02-27 12:30:00', 'complete', 1),
-(5, '2025-02-27 13:00:00', 'preparing', 2);
+INSERT INTO Orders (table_number, user_id, order_time, status, order_notes, restaurant_id) VALUES
+(10, 2, '2025-02-26 14:00:00', 'preparing', 'Extra napkins please', 1),
+(5, 5, '2025-02-26 14:15:00', 'complete', 'No onions on the burger', 2),
+(7, 6, '2025-02-26 14:30:00', 'preparing', 'Add extra cheese to the pizza', 3),
+(3, 7, '2025-02-26 14:45:00', 'complete', 'Please make it spicy', 4),
+(8, 2, '2025-02-27 12:30:00', 'complete', 'N/A', 1),
+(4, 5, '2025-02-27 13:00:00', 'preparing', 'No dressing on the side', 2);
+
 
 -- Insert Order Menu Items (Dishes in Each Order)
-INSERT INTO Order_Menu_Items (order_id, menu_item_id, quantity) VALUES
-(1, 1, 2),  -- Order 1: 2 Margherita Pizzas
-(1, 3, 1),  -- Order 1: 1 Caesar Salad
-(2, 2, 1),  -- Order 2: 1 Cheeseburger
-(3, 5, 3),  -- Order 3: 3 Tacos
-(4, 6, 2),  -- Order 4: 2 Sushi Rolls
-(5, 1, 1),  -- Order 5: 1 Margherita Pizza
-(6, 2, 2);  -- Order 6: 2 Cheeseburgers
+INSERT INTO Order_Menu_Items (order_id, menu_item, quantity) VALUES
+(1, 'Margherita Pizza', 2),  -- Order 1: 2 Margherita Pizzas
+(1, 'Caesar Salad', 1),      -- Order 1: 1 Caesar Salad
+(2, 'Cheeseburger', 1),      -- Order 2: 1 Cheeseburger
+(3, 'Tacos', 3),            -- Order 3: 3 Tacos
+(4, 'Sushi Rolls', 2),      -- Order 4: 2 Sushi Rolls
+(5, 'Margherita Pizza', 1), -- Order 5: 1 Margherita Pizza
+(6, 'Cheeseburger', 2);     -- Order 6: 2 Cheeseburgers

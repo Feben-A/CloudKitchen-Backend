@@ -5,4 +5,6 @@ const menuRouter = Router();
 
 // menuRouter.post("/", menuController.create);
 
+menuRouter.get("/names", menuController.show);
+
 module.exports = menuRouter;

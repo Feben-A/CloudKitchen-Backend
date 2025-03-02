@@ -33,7 +33,8 @@ class Order {
 
   static async newOrder(user_id, restaurant_id, table_number) {
     const response = await db.query(
-      "INSERT INTO Orders (user_id, restaurant_id, table_number) VALUES ($1, $2, $3) RETURNING *;"
+      "INSERT INTO Orders (user_id, restaurant_id, table_number) VALUES ($1, $2, $3) RETURNING *;",
+      [user_id, restaurant_id, table_number]
     );
 
     if (response.rows.length != 1) {
@@ -47,11 +48,13 @@ class Order {
     const results = [];
     for (const item of items) {
       const response = await db.query(
-        "INSERT INTO Order_Menu_Items (order_id, menu_item_id, quantity) VALUES($1, $2, $3) RETURNING *;",
-        [order_id, item.menu_item_id, item.quantity]
+        "INSERT INTO Order_Menu_Items (order_id, menu_item, quantity) VALUES($1, $2, $3) RETURNING *;",
+        [order_id, item.foodItem, item.quantity]
       );
-      results.push(response);
+      results.push(response.rows[0]);
     }
+
+    console.log(results);
     return results;
   }
 
