@@ -1,180 +1,136 @@
 const db = require("../db/connect");
 
 class Inventory {
-  // Fetch all inventory items
-  static async getAll() {
-    const result = await db.query(
-      "SELECT * FROM Inventory ORDER BY ingredient_id ASC"
-    );
-    return result.rows;
-  }
-
-  // Fetch a single inventory item by ID
-  static async getById(id) {
-    const result = await db.query(
-      "SELECT * FROM Inventory WHERE ingredient_id = $1",
-      [id]
-    );
-    return result.rows[0];
-  }
-
-  // Check if an ingredient exists in a restaurant with the same expiry date
-  static async getByNameAndRestaurant(name, restaurant_id, expiry_date) {
-    const result = await db.query(
-      "SELECT * FROM Inventory WHERE name = $1 AND restaurant_id = $2 AND expiry_date = $3",
-      [name, restaurant_id, expiry_date]
-    );
-    return result.rows[0];
-  }
-
-  // Create a new inventory item
-  static async create(
-    name,
-    category,
-    quantity,
-    unit,
-    price_per_unit,
-    expiry_date,
-    restaurant_id
-  ) {
-    const result = await db.query(
-      "INSERT INTO Inventory (name, category, quantity, unit, price_per_unit, expiry_date, restaurant_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-      [
-        name,
-        category,
-        quantity,
-        unit,
-        price_per_unit,
-        expiry_date,
-        restaurant_id,
-      ]
-    );
-    return result.rows[0];
-  }
-
-  // Increase inventory stock (either update existing batch or create a new one)
-  static async increaseStock(
-    name,
-    category,
-    quantity,
-    unit,
-    price_per_unit,
-    expiry_date,
-    restaurant_id
-  ) {
-    const existingIngredient = await db.query(
-      "SELECT * FROM Inventory WHERE name = $1 AND expiry_date = $2 AND restaurant_id = $3",
-      [name, expiry_date, restaurant_id]
-    );
-
-    if (existingIngredient.rows.length > 0) {
-      // Update stock if batch exists
-      const result = await db.query(
-        "UPDATE Inventory SET quantity = quantity + $1 WHERE ingredient_id = $2 RETURNING *",
-        [quantity, existingIngredient.rows[0].ingredient_id]
-      );
-      return result.rows[0];
-    } else {
-      // Create new batch if expiry date differs
-      return await this.create(
-        name,
-        category,
-        quantity,
-        unit,
-        price_per_unit,
-        expiry_date,
-        restaurant_id
-      );
+    // ✅ GET all inventory items
+    static async getAll() {
+        const response = await db.query("SELECT * FROM Inventory ORDER BY name ASC;");
+        return response.rows;
     }
-  }
 
-  // Deduct stock using FIFO method (oldest batch first)
-  static async deductStock(name, restaurant_id, quantityToDeduct) {
-    let remainingQuantity = quantityToDeduct;
+    // ✅ GET an inventory item by ID
+    static async getById(id) {
+        const response = await db.query("SELECT * FROM Inventory WHERE ingredient_id = $1;", [id]);
+        return response.rows[0] || null;
+    }
 
-    // Fetch the oldest batch first
-    const batches = await db.query(
-      "SELECT ingredient_id, quantity FROM Inventory WHERE name = $1 AND restaurant_id = $2 ORDER BY expiry_date ASC",
-      [name, restaurant_id]
-    );
+    // ✅ GET inventory items by restaurant ID
+    static async getByRestaurantId(restaurant_id) {
+        const response = await db.query("SELECT * FROM Inventory WHERE restaurant_id = $1;", [restaurant_id]);
+        return response.rows;
+    }
 
-    for (let batch of batches.rows) {
-      if (remainingQuantity <= 0) break;
+    
 
-      let deductAmount = Math.min(batch.quantity, remainingQuantity);
-      remainingQuantity -= deductAmount;
-
-      if (batch.quantity - deductAmount <= 0) {
-        await db.query("DELETE FROM Inventory WHERE ingredient_id = $1", [
-          batch.ingredient_id,
-        ]);
-      } else {
-        await db.query(
-          "UPDATE Inventory SET quantity = quantity - $1 WHERE ingredient_id = $2",
-          [deductAmount, batch.ingredient_id]
+    // ✅ Check if an item exists by name and restaurant
+    static async getByNameAndRestaurant(name, restaurant_id) {
+        const response = await db.query(
+            "SELECT * FROM Inventory WHERE name = $1 AND restaurant_id = $2;",
+            [name, restaurant_id]
         );
-      }
+        return response.rows[0] || null;
     }
 
-    return { message: "Stock deducted successfully" };
-  }
+    // ✅ CREATE new inventory item
+    static async create(name, category, quantity, unit, price_per_unit, purchase_price, expiry_date, restaurant_id) {
+        try {
+            console.log("📝 Inserting new inventory item:", name, category, quantity, unit, price_per_unit, purchase_price, expiry_date, restaurant_id);
+    
+            const response = await db.query(
+                `INSERT INTO Inventory (name, category, quantity, unit, price_per_unit, purchase_price, expiry_date, restaurant_id)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;`,
+                [name, category, quantity, unit, price_per_unit, purchase_price, expiry_date || null, restaurant_id]
+            );
+    
+            console.log("✅ Successfully added item:", response.rows[0]);
+            return response.rows[0];
+        } catch (error) {
+            console.error("❌ Error inserting inventory:", error);
+            throw new Error("Database Insert Error: " + error.message);
+        }
+    }
 
-  // Delete an inventory item
-  static async delete(id) {
-    const result = await db.query(
-      "DELETE FROM Inventory WHERE ingredient_id = $1 RETURNING *",
-      [id]
-    );
-    return result.rows[0];
-  }
+    // ✅ UPDATE inventory item by ID
+    static async update(id, { name, category, quantity, unit, price_per_unit, expiry_date, restaurant_id }) {
+        const response = await db.query(
+            `UPDATE Inventory 
+             SET name = $1, category = $2, quantity = $3, unit = $4, price_per_unit = $5, expiry_date = $6, restaurant_id = $7
+             WHERE ingredient_id = $8 RETURNING *;`,
+            [name, category, quantity, unit, price_per_unit, expiry_date || null, restaurant_id, id]
+        );
+        return response.rows[0] || null;
+    }
 
-  // Get inventory items that are expiring soon (e.g., within the next 7 days)
-  static async getExpiringSoon(days = 7) {
-    const result = await db.query(`
-            SELECT * FROM Inventory 
-            WHERE expiry_date BETWEEN NOW() AND NOW() + INTERVAL '${days} days'
-            ORDER BY expiry_date ASC;
-        `);
-    return result.rows;
-  }
+    // ✅ INCREASE stock for an existing inventory item
+    static async increaseStock(name, category, quantity, unit, price_per_unit, expiry_date, restaurant_id) {
+        const response = await db.query(
+            `UPDATE Inventory 
+             SET quantity = quantity + $1 
+             WHERE name = $2 AND category = $3 AND restaurant_id = $4 
+             RETURNING *;`,
+            [quantity, name, category, restaurant_id]
+        );
+        return response.rows[0] || null;
+    }
 
-  // Analytics Queries
+    // ✅ FIFO STOCK DEDUCTION - Deduct stock in FIFO order
+    static async deductStockFIFO(name, quantity, restaurant_id) {
+        const client = await db.connect();
+        try {
+            await client.query("BEGIN");
 
-  // Get total ingredient usage per month
-  static async getIngredientUsage() {
-    const result = await db.query(`
-            SELECT name, DATE_TRUNC('month', order_time) AS month, SUM(quantity_used) AS total_used
-            FROM Order_Ingredients 
-            JOIN Inventory ON Order_Ingredients.ingredient_id = Inventory.ingredient_id
-            JOIN Orders ON Order_Ingredients.order_id = Orders.order_id
-            GROUP BY name, month
-            ORDER BY month ASC;
-        `);
-    return result.rows;
-  }
+            // Get oldest available stock for the ingredient
+            const stockRows = await client.query(
+                `SELECT ingredient_id, quantity 
+                 FROM Inventory 
+                 WHERE name = $1 AND restaurant_id = $2 
+                 ORDER BY expiry_date ASC NULLS LAST;`,
+                [name, restaurant_id]
+            );
 
-  // Get expired vs used stock ratio
-  static async getWasteAnalysis() {
-    const result = await db.query(`
-            SELECT 
-                (SELECT SUM(quantity) FROM Inventory WHERE expiry_date < NOW()) AS total_wasted,
-                (SELECT SUM(quantity_used) FROM Order_Ingredients) AS total_used;
-        `);
-    return result.rows[0];
-  }
+            let remainingQuantity = quantity;
+            for (const row of stockRows.rows) {
+                if (remainingQuantity <= 0) break;
 
-  // Get cost analysis per month
-  static async getCostAnalysis() {
-    const result = await db.query(`
-            SELECT DATE_TRUNC('month', order_time) AS month, SUM(quantity_used * price_per_unit) AS total_cost
-            FROM Order_Ingredients 
-            JOIN Inventory ON Order_Ingredients.ingredient_id = Inventory.ingredient_id
-            JOIN Orders ON Order_Ingredients.order_id = Orders.order_id
-            GROUP BY month
-            ORDER BY month ASC;
-        `);
-    return result.rows;
-  }
+                let deductedAmount = Math.min(remainingQuantity, row.quantity);
+                remainingQuantity -= deductedAmount;
+
+                await client.query(
+                    `UPDATE Inventory 
+                     SET quantity = quantity - $1 
+                     WHERE ingredient_id = $2;`,
+                    [deductedAmount, row.ingredient_id]
+                );
+
+                // Remove items with zero quantity
+                await client.query(`DELETE FROM Inventory WHERE quantity <= 0;`);
+            }
+
+            await client.query("COMMIT");
+            return { message: `Successfully deducted ${quantity} units of ${name}` };
+        } catch (error) {
+            await client.query("ROLLBACK");
+            throw error;
+        } finally {
+            client.release();
+        }
+    }
+
+    // ✅ DELETE an inventory item by ID
+    static async deleteById(id) {
+        const response = await db.query(
+            "DELETE FROM Inventory WHERE ingredient_id = $1 RETURNING *;",
+            [id]
+        );
+        return response.rowCount > 0;
+    }
+
+    // ✅ DELETE expired stock
+    static async deleteExpired() {
+        const response = await db.query(
+            "DELETE FROM Inventory WHERE expiry_date < CURRENT_DATE RETURNING *;"
+        );
+        return response.rowCount;
+    }
 }
 
 module.exports = Inventory;

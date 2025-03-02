@@ -1,14 +1,17 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const InventoryController = require('../controllers/inventory');
+const inventoryController = require("../controllers/inventory");
 
-router.get("/expiring-soon", InventoryController.getExpiringSoonStock);
-router.get('/', InventoryController.getInventory); 
-router.get('/:id', InventoryController.getInventoryById); 
-router.post('/', InventoryController.createInventoryItem); 
-router.patch("/increase", InventoryController.increaseInventoryStock);
-router.patch("/deduct", InventoryController.deductIngredientStock);
-router.delete('/:id', InventoryController.deleteInventoryItem);
+router.get("/", inventoryController.index); // Get all inventory items or filter by restaurant_id
+router.get("/:id", inventoryController.getInventoryById); // Get a single inventory item by ID
 
+router.post("/", inventoryController.createOrUpdateInventory); // Add new stock or update existing
+
+router.patch("/increase", inventoryController.increaseStock);
+router.patch("/deduct", inventoryController.deductIngredientStock); // Deduct stock using FIFO
+router.patch("/:id", inventoryController.updateInventoryItem);
+
+router.delete("/expired-stock", inventoryController.removeExpiredStock); // Remove expired stock
+router.delete("/:id", inventoryController.deleteInventoryItem); // Delete an inventory item
 
 module.exports = router;
