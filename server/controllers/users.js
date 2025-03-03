@@ -29,13 +29,14 @@ async function register(req, res) {
 
 async function login(req, res) {
   const data = req.body;
-  console.log(data);
   try {
     const user = await User.getStaffByEmail(data.email);
+
     if (!user) {
       throw new Error("No user found.");
     }
     const match = await bcrypt.compare(data.password, user.password);
+    console.log(match);
 
     if (match) {
       const payload = {
