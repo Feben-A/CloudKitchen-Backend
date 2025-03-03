@@ -1,12 +1,13 @@
 const Menu = require("../models/Menu");
 
-// const create = async (res, req) => {
-//   try {
-
-//   } catch (err) {
-//     res.status(400).json({ error: err.message });
-//   }
-// };
+const index = async (req, res) => {
+  try {
+    const response = await Menu.getAll();
+    res.status(200).json(response);
+  } catch (err) {
+    res.status(200).json({ error: err.message });
+  }
+};
 
 const show = async (req, res) => {
   try {
@@ -17,4 +18,4 @@ const show = async (req, res) => {
   }
 };
 
-module.exports = { show };
+module.exports = { index, show };

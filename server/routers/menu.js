@@ -3,8 +3,8 @@ const menuController = require("../controllers/menu");
 
 const menuRouter = Router();
 
-// menuRouter.post("/", menuController.create);
-
+menuRouter.get("/", menuController.index);
 menuRouter.get("/names", menuController.show);
+menuRouter.post("/", menuController.create);
 
 module.exports = menuRouter;
