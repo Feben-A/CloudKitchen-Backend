@@ -52,17 +52,30 @@ class Order {
 
   static async newOrderMenuItems(items, order_id) {
     const results = [];
+
     for (const item of items) {
-      const response = await db.query(
-        "INSERT INTO Order_Menu_Items (order_id, menu_item, quantity) VALUES($1, $2, $3) RETURNING *;",
-        [order_id, item.foodItem, item.quantity]
-      );
-      results.push(response.rows[0]);
+        const menuItemQuery = await db.query(
+            "SELECT menu_item_id FROM Menu_Items WHERE name = $1;",
+            [item.foodItem]
+        );
+
+        if (menuItemQuery.rows.length === 0) {
+            throw new Error(`Menu item '${item.foodItem}' not found.`);
+        }
+
+        const menu_item_id = menuItemQuery.rows[0].menu_item_id;
+
+        const response = await db.query(
+            "INSERT INTO Order_Menu_Items (order_id, menu_item_id, menu_item, quantity) VALUES($1, $2, $3, $4) RETURNING *;",
+            [order_id, menu_item_id, item.foodItem, item.quantity]
+        );
+
+        results.push(response.rows[0]);
     }
 
     console.log(results);
     return results;
-  }
+}
 
   static async updateStatus(id) {
     const response = await db.query(
