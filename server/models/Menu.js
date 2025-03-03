@@ -21,7 +21,7 @@ class Menu {
 
   static async newItem(name, category, restaurant_id) {
     const response = db.query(
-      "INSERT INTO Menu_items (name, category, restaurant_id) VALUES( $1, $2, $3) RETURNING menu_item_id;"[
+      "INSERT INTO Menu_items (name, category, restaurant_id) VALUES($1, $2, $3) RETURNING menu_item_id;"[
         (name, category, restaurant_id)
       ]
     );
@@ -37,7 +37,7 @@ class Menu {
     const results = [];
     for (const ingredient of ingredients) {
       const response = await db.query(
-        "INSERT INTO Recipe (menu_item_id, ingredient_name, ingredient_id, quantity_required, unit"[
+        "INSERT INTO Recipe (menu_item_id, ingredient_name, ingredient_id, quantity_required, unit) VALUES ($1, $2, $3, $4)"[
           (menu_item_id,
           ingredient.name,
           ingredient.id,
