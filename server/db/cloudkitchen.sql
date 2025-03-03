@@ -1,5 +1,4 @@
 -- DROP TABLES IF THEY ALREADY EXIST (Ensures a clean setup)
-DROP TABLE IF EXISTS Order_Ingredients;
 DROP TABLE IF EXISTS Order_Menu_Items;
 DROP TABLE IF EXISTS Orders;
 DROP TABLE IF EXISTS Recipes;
@@ -63,6 +62,7 @@ CREATE TABLE Orders (
 CREATE TABLE Order_Menu_Items (
     order_menu_id SERIAL PRIMARY KEY,
     order_id INT REFERENCES Orders(order_id) ON DELETE CASCADE,
+    menu_item_id INT REFERENCES Menu_Items(menu_item_id) ON DELETE CASCADE,
     menu_item VARCHAR(30) NOT NULL,
     quantity INT CHECK (quantity > 0) NOT NULL
 );
@@ -100,59 +100,111 @@ INSERT INTO Users (name, email, password, role, restaurant_id, access_code) VALU
 -- Insert Menu Items (Dishes)
 INSERT INTO Menu_Items (name, category, restaurant_id) VALUES
 ('Margherita Pizza', 'Main Course', 1),
-('Cheeseburger', 'Main Course', 2),
+('Veggie Pizza', 'Main Course', 1),
+('Pepperoni Pizza', 'Main Course', 1),
+('BBQ Chicken Pizza', 'Main Course', 1),
 ('Caesar Salad', 'Starter', 1),
-('BBQ Burger', 'Main Course', 2),
-('Tacos', 'Main Course', 3),
-('Sushi Roll', 'Main Course', 4),
-('Tempura', 'Starter', 4);
+('Garlic Bread', 'Starter', 1),
+('Hawaiian Pizza', 'Main Course', 1),
+('Buffalo Wings', 'Starter', 1),
+('Pasta Carbonara', 'Main Course', 1),
+('Chocolate Brownie', 'Dessert', 1),
+('Tiramisu', 'Dessert', 1),
+('Minestrone Soup', 'Starter', 1);
 
 -- Insert Inventory (Ingredients)
 INSERT INTO Inventory (name, category, quantity, unit, price_per_unit, expiry_date, restaurant_id) VALUES
-('Cheese', 'Dairy', 15.00, 'kg', 5.00, '2025-04-01', 1),
-('Tomato Sauce', 'Sauce', 30.00, 'litres', 3.00, '2025-03-15', 1),
-('Lettuce', 'Vegetable', 25.00, 'pieces', 0.50, '2025-03-10', 2),
-('Beef Patty', 'Meat', 50.00, 'pieces', 2.50, '2025-04-01', 2),
-('Burger Bun', 'Bakery', 60.00, 'pieces', 1.00, '2025-03-20', 2),
-('Tortilla', 'Bakery', 40.00, 'pieces', 1.20, '2025-04-05', 3),
-('Avocado', 'Vegetable', 20.00, 'pieces', 1.80, '2025-03-12', 3),
-('Rice', 'Grain', 100.00, 'kg', 2.50, '2025-06-01', 4),
-('Fish', 'Meat', 40.00, 'kg', 8.00, '2025-03-25', 4),
-('Milk', 'Dairy', 5.00, 'litres', 1.50, CURRENT_DATE + INTERVAL '3 days', 1),  -- Expiring in 3 days
-('Tomatoes', 'Vegetable', 10.00, 'kg', 2.00, CURRENT_DATE + INTERVAL '5 days', 1), -- Expiring in 5 days
-('Lettuce', 'Vegetable', 15.00, 'pieces', 0.80, CURRENT_DATE + INTERVAL '6 days', 2), -- Expiring in 6 days
-('Cheese', 'Dairy', 8.00, 'kg', 5.50, CURRENT_DATE + INTERVAL '10 days', 1),  -- Expiring in 10 days (should NOT be returned)
-('Olive Oil', 'Oil', 3.00, 'litres', 4.00, CURRENT_DATE + INTERVAL '15 days', 3);  -- Expiring in 15 days (should NOT be returned)
+('Cheese', 'Dairy', 30.00, 'kg', 5.00, CURRENT_DATE + INTERVAL '15 days', 1),
+('Tomato Sauce', 'Sauce', 50.00, 'litres', 3.00, CURRENT_DATE + INTERVAL '30 days', 1),
+('Flour', 'Baking', 100.00, 'kg', 0.80, '2026-04-01', 1),
+('Olive Oil', 'Oil', 10.00, 'litres', 4.00, '2025-06-10', 1),
+('Basil', 'Herbs', 5.00, 'kg', 15.00, CURRENT_DATE + INTERVAL '20 days', 1),
+('Pepperoni', 'Meat', 12.00, 'kg', 10.00, '2025-04-01', 1),
+('BBQ Sauce', 'Sauce', 10.00, 'litres', 4.50, '2025-05-10', 1),
+('Chicken', 'Meat', 20.00, 'kg', 7.00, '2025-04-15', 1),
+('Lettuce', 'Vegetable', 15.00, 'pieces', 0.80, CURRENT_DATE + INTERVAL '10 days', 1),
+('Garlic', 'Vegetable', 7.00, 'kg', 3.00, CURRENT_DATE + INTERVAL '12 days', 1),
+('Mushrooms', 'Vegetable', 8.00, 'kg', 3.50, '2025-04-10', 1),
+('Ham', 'Meat', 15.00, 'kg', 9.00, '2025-03-25', 1),
+('Pineapple', 'Fruit', 10.00, 'kg', 4.00, '2025-04-05', 1),
+('Buffalo Sauce', 'Sauce', 5.00, 'litres', 6.00, '2025-05-15', 1),
+('Pasta', 'Baking', 25.00, 'kg', 2.50, '2026-05-01', 1),
+('Cream', 'Dairy', 10.00, 'litres', 3.00, '2025-04-12', 1),
+('Dark Chocolate', 'Confectionery', 7.00, 'kg', 8.00, '2025-09-30', 1),
+('Cream', 'Dairy', 10.00, 'litres', 3.00, '2025-04-12', 1),
+('Dark Chocolate', 'Confectionery', 7.00, 'kg', 8.00, '2025-09-30', 1),
+('Fresh Basil', 'Herbs', 3.00, 'kg', 15.00, CURRENT_DATE + INTERVAL '5 days', 1),
+('Spinach', 'Vegetable', 4.00, 'kg', 2.50, CURRENT_DATE + INTERVAL '4 days', 1),
+('Mint', 'Herbs', 2.00, 'kg', 12.00, CURRENT_DATE + INTERVAL '6 days', 1),
+('Romaine Lettuce', 'Vegetable', 8.00, 'pieces', 0.80, CURRENT_DATE + INTERVAL '3 days', 1),
+('Mozzarella', 'Dairy', 2.00, 'kg', 6.00, CURRENT_DATE + INTERVAL '5 days', 1),
+('Basil Leaves', 'Herbs', 3.00, 'g', 2.50, CURRENT_DATE + INTERVAL '8 days', 1),
+('Parmesan Cheese', 'Dairy', 4.00, 'kg', 8.00, CURRENT_DATE + INTERVAL '15 days', 1),
+('Chili Flakes', 'Spices', 1.50, 'kg', 3.00, CURRENT_DATE + INTERVAL '30 days', 1),
+('Garlic Butter', 'Condiments', 2.50, 'kg', 5.50, CURRENT_DATE + INTERVAL '12 days', 1);
 
 -- Insert Recipes (Dishes & Ingredients) JUST ADD INGREDIENT NAME HERE.
 INSERT INTO Recipes (menu_item_id, ingredient_id, ingredient_name, quantity_required, unit) VALUES
-(1, 1, 'Cheese', 200.00, 'g'),  -- Margherita Pizza needs Cheese
-(1, 2, 'Tomato Sauce', 150.00, 'ml'), -- Margherita Pizza needs Tomato Sauce
-(2, 4, 'Beef Patty', 1.00, 'piece'), -- Cheeseburger needs Beef Patty
-(2, 5, 'Burger Bun', 1.00, 'piece'), -- Cheeseburger needs Burger Bun
-(3, 3, 'Lettuce', 1.00, 'piece'), -- Caesar Salad needs Lettuce
-(5, 6, 'Tortilla', 1.00, 'piece'), -- Tacos need Tortilla
-(5, 7, 'Avocado', 0.5, 'piece'), -- Tacos need Avocado
-(6, 8, 'Rice', 200.00, 'g'), -- Sushi Roll needs Rice
-(6, 9, 'Fish', 100.00, 'g'); -- Sushi Roll needs Fish
+(1, 1, 'Cheese', 200.00, 'g'),
+(1, 2, 'Tomato Sauce', 150.00, 'ml'),
+(2, 1, 'Cheese', 180.00, 'g'),
+(2, 2, 'Tomato Sauce', 120.00, 'ml'),
+(2, 5, 'Basil', 5.00, 'g'),
+(3, 1, 'Cheese', 220.00, 'g'),
+(3, 2, 'Tomato Sauce', 150.00, 'ml'),
+(3, 6, 'Pepperoni', 100.00, 'g'),
+(4, 1, 'Cheese', 210.00, 'g'),
+(4, 2, 'Tomato Sauce', 130.00, 'ml'),
+(4, 7, 'BBQ Sauce', 80.00, 'ml'),
+(4, 8, 'Chicken', 150.00, 'g'),
+(5, 9, 'Lettuce', 1.00, 'piece'),
+(6, 10, 'Garlic', 50.00, 'g'),
+(7, 1, 'Cheese', 180.00, 'g'),
+(7, 2, 'Tomato Sauce', 120.00, 'ml'),
+(7, 3, 'Flour', 200.00, 'g'),
+(7, 4, 'Olive Oil', 10.00, 'ml'),
+(7, 13, 'Ham', 150.00, 'g'),
+(7, 14, 'Pineapple', 100.00, 'g'),
+(8, 15, 'Buffalo Sauce', 50.00, 'ml'),
+(8, 16, 'Chicken', 200.00, 'g'),
+(9, 17, 'Pasta', 250.00, 'g'),
+(9, 18, 'Cream', 100.00, 'ml'),
+(10, 19, 'Dark Chocolate', 150.00, 'g');
 
 
 -- Insert Orders (Customer Orders)
 INSERT INTO Orders (table_number, user_id, order_time, status, order_notes, restaurant_id) VALUES
-(10, 2, '2025-02-26 14:00:00', 'preparing', 'Extra napkins please', 1),
-(5, 5, '2025-02-26 14:15:00', 'complete', 'No onions on the burger', 2),
-(7, 6, '2025-02-26 14:30:00', 'preparing', 'Add extra cheese to the pizza', 3),
-(3, 7, '2025-02-26 14:45:00', 'complete', 'Please make it spicy', 4),
-(8, 2, '2025-02-27 12:30:00', 'complete', 'N/A', 1),
-(4, 5, '2025-02-27 13:00:00', 'preparing', 'No dressing on the side', 2);
-
+(4, 2, '2025-03-07 12:45:00', 'complete', 'Extra sauce on the side', 1),
+(6, 3, '2025-03-08 14:20:00', 'preparing', 'No onions', 1),
+(3, 1, '2025-03-09 18:30:00', 'complete', 'Gluten-free option', 1),
+(7, 2, '2025-03-10 20:10:00', 'preparing', 'Extra spicy', 1),
+(2, 3, '2025-03-11 15:25:00', 'complete', 'Add extra cheese', 1),
+(5, 2, '2025-03-12 19:50:00', 'preparing', 'No pickles', 1),
+(8, 3, '2025-03-13 13:10:00', 'complete', 'Well-done steak', 1),
+(1, 1, '2025-03-14 17:40:00', 'preparing', 'Vegan option', 1),
+(9, 2, '2025-03-15 12:00:00', 'complete', 'Extra dressing', 1),
+(4, 3, '2025-03-16 21:30:00', 'preparing', 'No garlic', 1),
+(7, 2, '2025-03-17 10:30:00', 'preparing', 'Less salt', 1),
+(6, 3, '2025-03-18 13:15:00', 'complete', 'Well-done burger', 1),
+(3, 1, '2025-03-19 15:45:00', 'preparing', 'Extra crispy fries', 1),
+(2, 2, '2025-03-20 17:20:00', 'complete', 'Spicy mayo on the side', 1),
+(5, 3, '2025-03-21 12:55:00', 'preparing', 'Gluten-free bread', 1),
+(8, 1, '2025-03-22 19:10:00', 'complete', 'Lightly toasted', 1);
 
 -- Insert Order Menu Items (Dishes in Each Order)
-INSERT INTO Order_Menu_Items (order_id, menu_item, quantity) VALUES
-(1, 'Margherita Pizza', 2),  -- Order 1: 2 Margherita Pizzas
-(1, 'Caesar Salad', 1),      -- Order 1: 1 Caesar Salad
-(2, 'Cheeseburger', 1),      -- Order 2: 1 Cheeseburger
-(3, 'Tacos', 3),            -- Order 3: 3 Tacos
-(4, 'Sushi Rolls', 2),      -- Order 4: 2 Sushi Rolls
-(5, 'Margherita Pizza', 1), -- Order 5: 1 Margherita Pizza
-(6, 'Cheeseburger', 2);     -- Order 6: 2 Cheeseburgers
+INSERT INTO Order_Menu_Items (order_id, menu_item_id, menu_item, quantity) VALUES
+(1, 1, 'Margherita Pizza', 2),  
+(1, 3, 'Pepperoni Pizza', 1),  
+(2, 2, 'Veggie Pizza', 1),  
+(3, 5, 'Caesar Salad', 1),  
+(4, 6, 'Garlic Bread', 2),
+(7, 7, 'Hawaiian Pizza', 2),  
+(8, 8, 'Buffalo Wings', 3),  
+(9, 9, 'Pasta Carbonara', 1),  
+(10, 10, 'Chocolate Brownie', 2),  
+(11, 7, 'Hawaiian Pizza', 1),  
+(12, 8, 'Buffalo Wings', 2),  
+(13, 9, 'Pasta Carbonara', 3),  
+(14, 10, 'Chocolate Brownie', 2),  
+(15, 7, 'Hawaiian Pizza', 3),  
+(16, 8, 'Buffalo Wings', 4);
