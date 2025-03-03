@@ -8,6 +8,5 @@ orderRouter.get("/", authentication, orderController.index);
 orderRouter.post("/", authentication, orderController.create);
 orderRouter.delete("/:id", authentication, orderController.remove);
 orderRouter.patch("/:id", authentication, orderController.update);
-//n.b add in the authentication after testing it.
 
 module.exports = orderRouter;

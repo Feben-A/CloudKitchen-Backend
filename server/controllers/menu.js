@@ -18,4 +18,14 @@ const show = async (req, res) => {
   }
 };
 
+const create = async (req, res) => {
+  try {
+    const ingredients = req.body.ingredients; //should be an array of objects
+    const menuItem = await Menu.newItem();
+    const response = await Menu.newRecipe(ingredients);
+  } catch (err) {
+    res.status(404).json({ error: err.message });
+  }
+};
+
 module.exports = { index, show };
