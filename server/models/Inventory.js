@@ -1,19 +1,19 @@
 const db = require("../db/connect");
 
 class Inventory {
-    // ✅ GET all inventory items
+    // GET all inventory items
     static async getAll() {
         const response = await db.query("SELECT * FROM Inventory ORDER BY name ASC;");
         return response.rows;
     }
 
-    // ✅ GET an inventory item by ID
+    // GET an inventory item by ID
     static async getById(id) {
         const response = await db.query("SELECT * FROM Inventory WHERE ingredient_id = $1;", [id]);
         return response.rows[0] || null;
     }
 
-    // ✅ GET inventory items by restaurant ID
+    // GET inventory items by restaurant ID
     static async getByRestaurantId(restaurant_id) {
         const response = await db.query("SELECT * FROM Inventory WHERE restaurant_id = $1;", [restaurant_id]);
         return response.rows;
@@ -31,14 +31,14 @@ class Inventory {
     }
 
     // ✅ CREATE new inventory item
-    static async create(name, category, quantity, unit, price_per_unit, purchase_price, expiry_date, restaurant_id) {
+    static async create(name, category, quantity, unit, price_per_unit, expiry_date, restaurant_id) {
         try {
-            console.log("📝 Inserting new inventory item:", name, category, quantity, unit, price_per_unit, purchase_price, expiry_date, restaurant_id);
+            console.log("📝 Inserting new inventory item:", name, category, quantity, unit, price_per_unit, expiry_date, restaurant_id);
     
             const response = await db.query(
-                `INSERT INTO Inventory (name, category, quantity, unit, price_per_unit, purchase_price, expiry_date, restaurant_id)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;`,
-                [name, category, quantity, unit, price_per_unit, purchase_price, expiry_date || null, restaurant_id]
+                `INSERT INTO Inventory (name, category, quantity, unit, price_per_unit, expiry_date, restaurant_id)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;`,
+                [name, category, quantity, unit, price_per_unit, expiry_date || null, restaurant_id]
             );
     
             console.log("✅ Successfully added item:", response.rows[0]);

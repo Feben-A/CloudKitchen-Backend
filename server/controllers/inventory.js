@@ -36,27 +36,24 @@ class InventoryController {
     // ✅ POST - Add new inventory item or update existing stock
     static async createOrUpdateInventory(req, res) {
         try {
-            const { name, category, quantity, unit, price_per_unit, purchase_price, expiry_date, restaurant_id } = req.body;
+            const { name, category, quantity, unit, price_per_unit, expiry_date, restaurant_id } = req.body;
     
             if (!name || !category || !quantity || !unit || !price_per_unit || !restaurant_id) {
                 return res.status(400).json({ error: "Missing required fields" });
             }
     
-            // Ensure purchase_price has a value
-            const cleanPurchasePrice = purchase_price !== undefined ? purchase_price : price_per_unit;
-    
-            console.log("Received data:", { name, category, quantity, unit, price_per_unit, cleanPurchasePrice, expiry_date, restaurant_id });
+            console.log("Received data:", { name, category, quantity, unit, price_per_unit, expiry_date, restaurant_id });
     
             const existingIngredient = await Inventory.getByNameAndRestaurant(name, restaurant_id);
     
             if (existingIngredient) {
                 console.log("Ingredient exists. Updating stock...");
-                const updatedItem = await Inventory.increaseStock(name, category, quantity, unit, price_per_unit, cleanPurchasePrice, expiry_date, restaurant_id);
+                const updatedItem = await Inventory.increaseStock(name, category, quantity, unit, price_per_unit, expiry_date, restaurant_id);
                 return res.status(200).json(updatedItem);
             }
     
             console.log("Adding new ingredient...");
-            const newItem = await Inventory.create(name, category, quantity, unit, price_per_unit, cleanPurchasePrice, expiry_date, restaurant_id);
+            const newItem = await Inventory.create(name, category, quantity, unit, price_per_unit, expiry_date, restaurant_id);
             res.status(201).json(newItem);
         } catch (error) {
             console.error("❌ Error adding inventory item:", error);
