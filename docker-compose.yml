@@ -1,0 +1,22 @@
+version: '3.9'
+services:
+  cloud-kitchen-mvc:
+    image: salamaattia/cloud-kitchen-mvc:0.0.1.RELEASE
+    ports:
+      - "3000:3000"
+    restart: always
+    depends_on:
+      - cloud-kitchen-db
+    networks:
+      - cloud-kitchen-network 
+
+  cloud-kitchen-db:
+    image: salamaattia/cloud-kitchen-db:0.0.1.RELEASE
+    ports:
+      - "5432:5432"
+    restart: always
+    networks:
+      - cloud-kitchen-network  
+      
+networks:
+  cloud-kitchen-network:  
