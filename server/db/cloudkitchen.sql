@@ -62,6 +62,7 @@ CREATE TABLE Orders (
 CREATE TABLE Order_Menu_Items (
     order_menu_id SERIAL PRIMARY KEY,
     order_id INT REFERENCES Orders(order_id) ON DELETE CASCADE,
+    menu_item_id INT REFERENCES Menu_Items(menu_item_id) ON DELETE CASCADE,
     menu_item VARCHAR(30) NOT NULL,
     quantity INT CHECK (quantity > 0) NOT NULL
 );
@@ -71,7 +72,6 @@ CREATE TABLE Recipes (
     recipe_id SERIAL PRIMARY KEY,
     menu_item_id INT REFERENCES Menu_Items(menu_item_id) ON DELETE CASCADE,
     ingredient_id INT REFERENCES Inventory(ingredient_id) ON DELETE CASCADE,
-    ingredient_name VARCHAR(20),
     ingredient_name VARCHAR(20),
     quantity_required DECIMAL(10,2) NOT NULL,
     unit VARCHAR(20) NOT NULL
