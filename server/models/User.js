@@ -13,7 +13,6 @@ class User {
 
   static async getRestaurantId(code) {
     console.log(code);
-    console.log(db);
     const response = await db.query(
       "SELECT restaurant_id FROM Restaurants WHERE LOWER(restaurant_code) = LOWER($1) LIMIT 1;",
       [code]
@@ -50,6 +49,7 @@ class User {
     if (response.rows.length === 0) {
       throw new Error("Unable to register staff");
     }
+    console.log(response.rows[0]);
     return response.rows[0];
   }
 }

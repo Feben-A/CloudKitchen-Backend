@@ -10,11 +10,14 @@ class Order {
 
   static async getAll() {
     const response = await db.query(
-      "SELECT o.order_id, json_agg(json_build_object('menu_item_name', mi.name, 'quantity', omi.quantity)) AS menu_items FROM Orders o JOIN Order_Menu_Items omi ON o.order_id = omi.order_id JOIN Menu_Items mi ON omi.menu_item_id = mi.menu_item_id GROUP BY o.order_id ORDER BY o.order_id;"
+      "SELECT o.order_id, o.order_time, STRING_AGG(CONCAT(m.quantity, ' ', m.menu_item), ', ') AS menu_items, SUM(m.quantity) AS total_quantity, o.order_notes, o.status FROM Orders AS o JOIN Order_menu_items AS m ON o.order_id = m.order_id GROUP BY o.order_id, o.order_time, o.order_notes, o.status ORDER BY o.order_id;"
     );
+
     if (response.rows.length === 0) {
       throw new Error("No orders found");
     }
+
+    console.log(response.rows);
     return response.rows;
   }
 
@@ -31,9 +34,13 @@ class Order {
     return new Order(response.rows[0]);
   }
 
-  static async newOrder(user_id, restaurant_id) {
+  static async newOrder(user_id, restaurant_id, table_number, order_notes) {
+    if (order_notes.length === 0) {
+      order_notes = "N/A";
+    }
     const response = await db.query(
-      "INSERT INTO Orders (user_id, restaurant_id) VALUES ($1, $2) RETURNING *;"
+      "INSERT INTO Orders (user_id, restaurant_id, table_number, order_notes) VALUES ($1, $2, $3, $4) RETURNING *;",
+      [user_id, restaurant_id, table_number, order_notes]
     );
 
     if (response.rows.length != 1) {
@@ -47,11 +54,13 @@ class Order {
     const results = [];
     for (const item of items) {
       const response = await db.query(
-        "INSERT INTO Order_Menu_Items (order_id, menu_item_id, quantity) VALUES($1, $2, $3) RETURNING *;",
-        [order_id, item.menu_item_id, item.quantity]
+        "INSERT INTO Order_Menu_Items (order_id, menu_item, quantity) VALUES($1, $2, $3) RETURNING *;",
+        [order_id, item.foodItem, item.quantity]
       );
-      results.push(response);
+      results.push(response.rows[0]);
     }
+
+    console.log(results);
     return results;
   }
 

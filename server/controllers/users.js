@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+require("dotenv").config();
 
 async function index(req, res) {
   try {
@@ -30,10 +31,12 @@ async function login(req, res) {
   const data = req.body;
   try {
     const user = await User.getStaffByEmail(data.email);
+
     if (!user) {
       throw new Error("No user found.");
     }
     const match = await bcrypt.compare(data.password, user.password);
+    console.log(match);
 
     if (match) {
       const payload = {
@@ -42,7 +45,9 @@ async function login(req, res) {
         user_id: user.user_id,
         restaurant_id: user.restaurant_id,
       };
+      console.log(payload);
       console.log("signing jwt");
+      console.log(process.env.SECRET_TOKEN);
       const token = jwt.sign(payload, process.env.SECRET_TOKEN, {
         expiresIn: 3600,
       });
