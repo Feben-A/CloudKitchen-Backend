@@ -9,6 +9,14 @@ class Inventory {
     return result.rows;
   }
 
+  static async getInventoryId(name) {
+    const response = await db.query(
+      "SELECT ingredient_id FROM Inventory WHERE name = $1"[name]
+    );
+
+    return response.rows[0];
+  }
+
   // Fetch a single inventory item by ID
   static async getById(id) {
     const result = await db.query(
