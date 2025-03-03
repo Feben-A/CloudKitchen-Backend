@@ -1,12 +1,6 @@
 const db = require("../db/connect");
 
 class Order {
-  constructor({ order_id, user_id, order_time, status, restuarant_id }) {
-    (this.order_id = order_id),
-      (this.user_id = user_id),
-      (this.order_id = order_time);
-    (this.status = status), (this.restuarant_id = restuarant_id);
-  }
 
   static async getAll() {
     const response = await db.query(
@@ -33,6 +27,41 @@ class Order {
 
     return new Order(response.rows[0]);
   }
+
+
+  static async createOrder({ table_number, user_id, status, order_notes, restaurant_id }) {
+    const query = `
+        INSERT INTO Orders (table_number, user_id, status, order_notes, restaurant_id)
+        VALUES ($1, $2, $3, $4, $5) RETURNING *;
+    `;
+    const values = [table_number, user_id, status, order_notes, restaurant_id];
+    const { rows } = await db.query(query, values);
+    return rows[0]; 
+}
+
+static async addOrderItems(items, order_id) {
+  const results = [];
+  
+  for (const item of items) {
+      const query = `
+            INSERT INTO Order_Menu_Items (order_id, menu_item_id, menu_item, quantity)
+            VALUES (
+                $1, 
+                (SELECT menu_item_id FROM Menu_Items WHERE name = $2), 
+                $2, 
+                $3
+            ) 
+            RETURNING *;
+      `;
+      const values = [order_id, item.foodItem, item.quantity];
+
+      const { rows } = await db.query(query, values);
+      results.push(rows[0]);
+  }
+
+  return results;
+}
+
 
   static async newOrder(user_id, restaurant_id, table_number, order_notes) {
     if (order_notes.length === 0) {

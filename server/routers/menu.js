@@ -1,6 +1,5 @@
 const { Router } = require("express");
 const menuController = require("../controllers/menu");
-const authentication = require("../middlewares/authentication");
 
 const menuRouter = Router();
 
