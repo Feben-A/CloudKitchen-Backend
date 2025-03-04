@@ -7,8 +7,8 @@ COPY . /app
 ENV PORT=3000
 ENV DB_USER=postgres
 ENV DB_PORT=5432
-ENV DB_HOST=cloud-kitchen-db
+ENV DB_HOST=cloudkitchen-db
 ENV DB_PASSWORD=docker
-ENV DB_NAME=cloudkitchen
+ENV DB_NAME=cloudkitchen-db
 EXPOSE 3000
 CMD ["node", "index.js"]
