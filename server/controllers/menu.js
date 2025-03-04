@@ -23,7 +23,7 @@ const show = async (req, res) => {
 const create = async (req, res) => {
   try {
     console.log(req.body);
-    const ingredients = req.body.ingredients; //should be an array of objects
+    const ingredients = req.body.ingredients;
 
     const menuItemId = await Menu.newItem(
       req.body.name,
@@ -32,15 +32,6 @@ const create = async (req, res) => {
     );
     console.log(menuItemId);
 
-    // const updatedIngredients = await Promise.all(
-    //   ingredients.map(async (ingredient) => {
-    //     const ingredientId = await Inventory.getInventoryId(ingredient.name);
-    //     console.log(ingredientId);
-    //     return { ...ingredient, id: ingredientId };
-    //   })
-    // );
-    // console.log(updatedIngredients);
-    
     const response = await Menu.newRecipe(ingredients, menuItemId);
     res.status(200).json(response);
   } catch (err) {

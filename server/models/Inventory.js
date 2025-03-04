@@ -9,15 +9,6 @@ class Inventory {
     return response.rows;
   }
 
-  // static async getInventoryId(name) {
-  //   const response = await db.query(
-  //     "SELECT ingredient_id FROM Inventory WHERE name = $1;",
-  //     [name]
-  //   );
-    //basically there may be no stock for the item.
-  // }
-
-  // GET an inventory item by ID
   static async getById(id) {
     const response = await db.query(
       "SELECT * FROM Inventory WHERE ingredient_id = $1;",
@@ -26,7 +17,6 @@ class Inventory {
     return response.rows[0] || null;
   }
 
-  // GET inventory items by restaurant ID
   static async getByRestaurantId(restaurant_id) {
     const response = await db.query(
       "SELECT * FROM Inventory WHERE restaurant_id = $1;",

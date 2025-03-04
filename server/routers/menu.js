@@ -8,6 +8,4 @@ menuRouter.get("/", authentication, menuController.index);
 menuRouter.get("/names", authentication, menuController.show);
 menuRouter.post("/", authentication, menuController.create);
 
-//n.b need to add authentication here
-
 module.exports = menuRouter;
