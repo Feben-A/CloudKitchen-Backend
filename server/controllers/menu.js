@@ -1,4 +1,5 @@
-const { getInventoryId } = require("../models/Inventory");
+const Inventory = require("../models/Inventory");
+
 const Menu = require("../models/Menu");
 
 const index = async (req, res) => {
@@ -21,6 +22,7 @@ const show = async (req, res) => {
 
 const create = async (req, res) => {
   try {
+    console.log(req.body);
     const ingredients = req.body.ingredients; //should be an array of objects
 
     const menuItemId = await Menu.newItem(
@@ -28,18 +30,22 @@ const create = async (req, res) => {
       req.body.category,
       req.restaurant_id
     );
+    console.log(menuItemId);
 
-    const updatedIngredients = await Promise.all(
-      ingredients.map(async (ingredient) => {
-        const ingredientId = await Inventory.getInventoryId(ingredient.name);
-        return { ...ingredient, id: ingredientId };
-      })
-    );
-    const response = await Menu.newRecipe(updatedIngredients, menuItemId);
+    // const updatedIngredients = await Promise.all(
+    //   ingredients.map(async (ingredient) => {
+    //     const ingredientId = await Inventory.getInventoryId(ingredient.name);
+    //     console.log(ingredientId);
+    //     return { ...ingredient, id: ingredientId };
+    //   })
+    // );
+    // console.log(updatedIngredients);
+    
+    const response = await Menu.newRecipe(ingredients, menuItemId);
     res.status(200).json(response);
   } catch (err) {
     res.status(404).json({ error: err.message });
   }
 };
 
-module.exports = { index, show };
+module.exports = { index, show, create };
