@@ -2,10 +2,19 @@ const db = require("../db/connect");
 
 class Inventory {
   // GET all inventory items
-  static async getAll() {
-    const response = await db.query(
-      "SELECT * FROM Inventory ORDER BY name ASC;"
-    );
+  static async getAll(sortBy = "name", direction = "asc") {
+    const validSortFields = ["name", "category", "quantity", "price_per_unit", "expiry_date"];
+    const validDirections = ["asc", "desc"];
+
+    if (!validSortFields.includes(sortBy)) sortBy = "name";
+    if (!validDirections.includes(direction)) direction = "asc";
+
+    const query = `
+      SELECT * FROM Inventory 
+      ORDER BY ${sortBy} ${direction};
+    `;
+    
+    const response = await db.query(query);
     return response.rows;
   }
 
@@ -25,7 +34,7 @@ class Inventory {
     return response.rows;
   }
 
-  // ✅ Check if an item exists by name and restaurant
+  // Check if an item exists by name and restaurant
   static async getByNameAndRestaurant(name, restaurant_id) {
     const response = await db.query(
       "SELECT * FROM Inventory WHERE name = $1 AND restaurant_id = $2;",
@@ -34,7 +43,7 @@ class Inventory {
     return response.rows[0] || null;
   }
 
-  // ✅ CREATE new inventory item
+  // CREATE new inventory item
   static async create(
     name,
     category,
@@ -70,15 +79,15 @@ class Inventory {
         ]
       );
 
-      console.log("✅ Successfully added item:", response.rows[0]);
+      console.log("Successfully added item:", response.rows[0]);
       return response.rows[0];
     } catch (error) {
-      console.error("❌ Error inserting inventory:", error);
+      console.error("Error inserting inventory:", error);
       throw new Error("Database Insert Error: " + error.message);
     }
   }
 
-  // ✅ UPDATE inventory item by ID
+  // UPDATE inventory item by ID
   static async update(
     id,
     {
@@ -94,7 +103,7 @@ class Inventory {
     const response = await db.query(
       `UPDATE Inventory 
              SET name = $1, category = $2, quantity = $3, unit = $4, price_per_unit = $5, expiry_date = $6, restaurant_id = $7
-             WHERE ingredient_id = $8 RETURNING *;`,
+             WHERE ingredient_id = $8 RETURNING *`,
       [
         name,
         category,
@@ -109,7 +118,7 @@ class Inventory {
     return response.rows[0] || null;
   }
 
-  // ✅ INCREASE stock for an existing inventory item
+  // INCREASE stock for an existing inventory item
   static async increaseStock(
     name,
     category,
@@ -129,7 +138,7 @@ class Inventory {
     return response.rows[0] || null;
   }
 
-  // ✅ FIFO STOCK DEDUCTION - Deduct stock in FIFO order
+  // FIFO STOCK DEDUCTION - Deduct stock in FIFO order
   static async deductStockFIFO(name, quantity, restaurant_id) {
     const client = await db.connect();
     try {
@@ -172,16 +181,16 @@ class Inventory {
     }
   }
 
-  // ✅ DELETE an inventory item by ID
+  // DELETE an inventory item by ID
   static async deleteById(id) {
     const response = await db.query(
-      "DELETE FROM Inventory WHERE ingredient_id = $1 RETURNING *;",
+      "DELETE FROM Inventory WHERE id = $1 RETURNING *",
       [id]
     );
     return response.rowCount > 0;
   }
 
-  // ✅ DELETE expired stock
+  // DELETE expired stock
   static async deleteExpired() {
     const response = await db.query(
       "DELETE FROM Inventory WHERE expiry_date < CURRENT_DATE RETURNING *;"
