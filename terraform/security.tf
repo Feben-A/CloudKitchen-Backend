@@ -1,5 +1,5 @@
-resource "aws_security_group" "http_server_sg" {
-  name   = "http_server_sg"
+resource "aws_security_group" "http_server_sg_tf" {
+  name   = "http_server_sg_tf"
   vpc_id = aws_default_vpc.default.id
 
   tags = {
@@ -27,12 +27,12 @@ resource "aws_security_group" "http_server_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.http_server_sg.id]
-  }
+  # ingress {
+  #   from_port   = 5432
+  #   to_port     = 5432
+  #   protocol    = "tcp"
+  #   cidr_blocks = ["172.31.0.0/16"] 
+  # }
 
   egress {
     from_port   = 0

@@ -3,7 +3,7 @@
   tasks:
     - name: Copy docker-compose.yml to the EC2 instance
       copy:
-        src: ../docker-compose.yml
+        src: ../../docker-compose.yml
         dest: /home/ec2-user/docker-compose.yml
 
     - name: Run docker-compose
