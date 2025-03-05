@@ -4,7 +4,17 @@ class Order {
 
   static async getAll() {
     const response = await db.query(
-      "SELECT o.order_id, o.order_time, STRING_AGG(CONCAT(m.quantity, ' ', m.menu_item), ', ') AS menu_items, SUM(m.quantity) AS total_quantity, o.order_notes, o.status FROM Orders AS o JOIN Order_menu_items AS m ON o.order_id = m.order_id GROUP BY o.order_id, o.order_time, o.order_notes, o.status ORDER BY o.order_id;"
+      `SELECT 
+          o.order_id, 
+          o.order_time, 
+          STRING_AGG(CONCAT(m.quantity, ' ', COALESCE(m.menu_item, 'Unknown')), ', ') AS menu_items, 
+          COALESCE(SUM(m.quantity), 0) AS total_quantity, 
+          o.order_notes, 
+          o.status 
+      FROM Orders AS o 
+      LEFT JOIN Order_menu_items AS m ON o.order_id = m.order_id 
+      GROUP BY o.order_id, o.order_time, o.order_notes, o.status 
+      ORDER BY o.order_id;`
     );
 
     if (response.rows.length === 0) {

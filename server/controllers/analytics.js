@@ -1,7 +1,7 @@
 const AnalyticsModel = require("../models/analytics");
 
 class AnalyticsController {
-    // ✅ 1. Get Stock Value by Category
+    // Get Stock Value by Category
     static async getStockValueByCategory(req, res) {
         try {
             const data = await AnalyticsModel.getStockValueByCategory();
@@ -12,7 +12,7 @@ class AnalyticsController {
         }
     }
 
-    // ✅ 2. Get Expiring Soon Stock
+    // Get Expiring Soon Stock
     static async getExpiringSoon(req, res) {
         try {
             const data = await AnalyticsModel.getExpiringSoon();
@@ -23,7 +23,7 @@ class AnalyticsController {
         }
     }
 
-    // ✅ 3. Get Most Used Ingredients
+    // Get Most Used Ingredients
     static async getMostUsedIngredients(req, res) {
         try {
             const data = await AnalyticsModel.getMostUsedIngredients();
@@ -34,7 +34,7 @@ class AnalyticsController {
         }
     }
 
-    // ✅ 4. Get Most Ordered Dishes
+    // Get Most Ordered Dishes
     static async getMostOrderedDishes(req, res) {
         try {
             const data = await AnalyticsModel.getMostOrderedDishes();
@@ -45,7 +45,7 @@ class AnalyticsController {
         }
     }
 
-    // ✅ 5. Get Stock Usage Trend
+    // Get Stock Usage Trend
     static async getStockUsageTrend(req, res) {
         try {
             const data = await AnalyticsModel.getStockUsageTrend();
@@ -56,7 +56,7 @@ class AnalyticsController {
         }
     }
 
-    // ✅ 6. Get Stock Levels by Category
+    // Get Stock Levels by Category
     static async getStockLevelsByCategory(req, res) {
         try {
             const data = await AnalyticsModel.getStockLevelsByCategory();
@@ -67,7 +67,7 @@ class AnalyticsController {
         }
     }
 
-    // ✅ 7. Get Ingredient Category Distribution
+    // Get Ingredient Category Distribution
     static async getIngredientCategoryDistribution(req, res) {
         try {
             const data = await AnalyticsModel.getIngredientCategoryDistribution();
@@ -78,7 +78,7 @@ class AnalyticsController {
         }
     }
 
-    // ✅ 8. Get Restaurant Performance
+    // Get Restaurant Performance
     static async getRestaurantPerformance(req, res) {
         try {
             const data = await AnalyticsModel.getRestaurantPerformance();
@@ -89,7 +89,7 @@ class AnalyticsController {
         }
     }
 
-    // ✅ 9. Get Revenue Trends
+    // Get Revenue Trends
     static async getRevenueTrends(req, res) {
         try {
             const data = await AnalyticsModel.getRevenueTrends();
@@ -100,7 +100,7 @@ class AnalyticsController {
         }
     }
 
-    // ✅ 10. Get Live Order Status
+    // Get Live Order Status
     static async getLiveOrderStatus(req, res) {
         try {
             const data = await AnalyticsModel.getLiveOrderStatus();

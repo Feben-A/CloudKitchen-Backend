@@ -106,7 +106,7 @@ class AnalyticsModel {
         return rows;
     }
 
-    // 1. ingredient Category Distribution (Pie Chart)
+    // Ingredient Category Distribution (Pie Chart)
     static async getIngredientCategoryDistribution() {
         const query = `
             SELECT 
@@ -122,7 +122,7 @@ class AnalyticsModel {
         return rows;
     }
 
-    //  2. Restaurant Performance (Grouped Bar Chart)
+    //  Restaurant Performance (Grouped Bar Chart)
     static async getRestaurantPerformance() {
         const query = `
             SELECT 
@@ -141,7 +141,7 @@ class AnalyticsModel {
         return rows;
     }
 
-    //  3. Revenue Trends (Area Chart)
+    //  Revenue Trends (Area Chart)
     static async getRevenueTrends() {
         const query = `
 SELECT 
@@ -158,7 +158,7 @@ SELECT
         return rows;
     }
 
-    //  4. Live Order Status (Donut Chart)
+    //  Live Order Status (Donut Chart)
     static async getLiveOrderStatus() {
         const query = `
             SELECT status, COUNT(order_id)::INTEGER AS total_orders
