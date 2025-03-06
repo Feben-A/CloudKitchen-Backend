@@ -1,13 +1,33 @@
 const db = require("../db/connect");
 
 class Menu {
-  static async getAll() {
-    const response = await db.query("SELECT name, category FROM Menu_items;");
-    if (response.rows.length == 0) {
-      throw new Error("No menu items found");
+  static async getAll({ sortBy = "name", direction = "asc", search = "" }) {
+    const validSortColumns = ["name", "category"];
+    if (!validSortColumns.includes(sortBy)) {
+        sortBy = "name";
     }
-    return response.rows;
-  }
+    if (direction !== "asc" && direction !== "desc") {
+        direction = "asc";
+    }
+
+    const query = `
+        SELECT m.menu_item_id AS id, m.name, m.category,
+            COALESCE(
+                json_agg(
+                    json_build_object('ingredient_name', r.ingredient_name, 'quantity', r.quantity_required, 'unit', r.unit)
+                ) FILTER (WHERE r.ingredient_name IS NOT NULL), '[]'
+            ) AS ingredients
+        FROM menu_items m
+        LEFT JOIN recipes r ON m.menu_item_id = r.menu_item_id
+        WHERE LOWER(m.name) LIKE LOWER($1) OR LOWER(m.category) LIKE LOWER($1)
+        GROUP BY m.menu_item_id
+        ORDER BY ${sortBy} ${direction};
+    `;
+
+    const values = [`%${search}%`];
+    const response = await db.query(query, values);
+    return response.rows.length ? response.rows : [];
+}
   static async getMenuItems() {
     const response = await db.query("SELECT name FROM Menu_items;");
     if (response.rows.length == 0) {

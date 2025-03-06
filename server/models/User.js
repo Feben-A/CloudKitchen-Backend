@@ -1,6 +1,16 @@
 const db = require("../db/connect");
 
 class User {
+  constructor({ user_id, name, email, password, role, restaurant_id, access_code}) {
+    this.user_id = user_id;
+    this.name = name
+    this.email = email;
+    this.password = password;
+    this.role = role;
+    this.restaurant_id = restaurant_id
+    this.access_code = access_code
+  }
+
   static async getAll() {
     console.log("Hello");
     const response = await db.query("SELECT * FROM Users");
@@ -28,15 +38,16 @@ class User {
   }
 
   static async getStaffByEmail(email) {
-    const response = await db.query("SELECT * FROM Users WHERE email = $1;", [
-      email,
-    ]);
+    try {
+        console.log("Querying for email: ", email);
+        const result = await db.query("SELECT * FROM Users WHERE email = $1", [email]);
+        console.log("Database result:", result.rows);
 
-    if (response.rows.length != 1) {
-      throw new Error("Unable to find user");
+        return result.rows.length ? result.rows[0] : null;
+    } catch (error) {
+        console.error("Database query error:", error);
+        throw new Error("Database query failed");
     }
-
-    return response.rows[0];
   }
 
   static async create(data, restaurant_id) {

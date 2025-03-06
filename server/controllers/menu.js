@@ -4,10 +4,11 @@ const Menu = require("../models/Menu");
 
 const index = async (req, res) => {
   try {
-    const response = await Menu.getAll();
+    const { sortBy = "name", direction = "asc", search = "" } = req.query;
+    const response = await Menu.getAll({ sortBy, direction, search });
     res.status(200).json(response);
   } catch (err) {
-    res.status(200).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
 

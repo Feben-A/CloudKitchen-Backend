@@ -3,7 +3,18 @@ const Order = require("../models/Order");
 
 const index = async (req, res) => {
   try {
-    const response = await Order.getAll();
+    let { sortBy, direction } = req.query;
+
+    const validSortColumns = ["order_id", "order_time", "total_quantity", "status"];
+    if (!validSortColumns.includes(sortBy)) {
+        sortBy = "order_id";
+    }
+
+    if (direction !== "asc" && direction !== "desc") {
+      direction = "asc";
+    }
+
+    const response = await Order.getAll(sortBy, direction);
     console.log(response);
     res.status(200).json(response);
   } catch (err) {

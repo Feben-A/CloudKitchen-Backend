@@ -2,9 +2,9 @@ const db = require("../db/connect");
 
 class Order {
 
-  static async getAll() {
-    const response = await db.query(
-      `SELECT 
+  static async getAll(sortBy = "order_id", direction = "asc") {
+    const query = `
+      SELECT 
           o.order_id, 
           o.order_time, 
           STRING_AGG(CONCAT(m.quantity, ' ', COALESCE(m.menu_item, 'Unknown')), ', ') AS menu_items, 
@@ -14,8 +14,9 @@ class Order {
       FROM Orders AS o 
       LEFT JOIN Order_menu_items AS m ON o.order_id = m.order_id 
       GROUP BY o.order_id, o.order_time, o.order_notes, o.status 
-      ORDER BY o.order_id;`
-    );
+      ORDER BY ${sortBy} ${direction};
+    `;
+    const response = await db.query(query);
 
     if (response.rows.length === 0) {
       throw new Error("No orders found");

@@ -41,20 +41,34 @@ async function login(req, res) {
     if (match) {
       const payload = {
         name: user.name,
+        email: user.email,
         role: user.role,
         user_id: user.user_id,
         restaurant_id: user.restaurant_id,
       };
+
       console.log(payload);
       console.log("signing jwt");
       console.log(process.env.SECRET_TOKEN);
-      const token = jwt.sign(payload, process.env.SECRET_TOKEN, {
-        expiresIn: 3600,
-      });
-      res.status(200).json({
-        success: true,
-        token: token,
-      });
+
+      const sendToken = (err, token) => {
+        if (err) {
+          throw new Error("Error in token generation");
+        }
+        res.status(200).json({
+          success: true,
+          token: token,
+          user_id: user.user_id,
+          email: user.email,
+        });
+      };
+
+      jwt.sign(
+        payload, 
+        process.env.SECRET_TOKEN, 
+        { expiresIn: 3600 },
+        sendToken
+      );
     } else {
       throw new Error("User could not be authenticated");
     }

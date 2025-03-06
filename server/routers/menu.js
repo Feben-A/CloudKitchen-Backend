@@ -4,8 +4,8 @@ const authentication = require("../middlewares/authentication");
 
 const menuRouter = Router();
 
-menuRouter.get("/", authentication, menuController.index);
-menuRouter.get("/names", authentication, menuController.show);
-menuRouter.post("/", authentication, menuController.create);
+menuRouter.get("/", menuController.index);
+menuRouter.get("/names", menuController.show);
+menuRouter.post("/", menuController.create);
 
 module.exports = menuRouter;
